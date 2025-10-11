@@ -1,34 +1,59 @@
 import sys
 import os
 
-# Aggiungi il percorso relativo della cartella dove si trova DataLayer
 sys.path.append(os.path.abspath("../"))
 
-# print(os.path.abspath("../")
 from DataAccess.Model.PPI_Model import PPIModel
 from DataAccess.Repository.RepositoryFile import RepositoryFile
 import pandas as pd
+import igraph as ig
 import re
 
-dfPPI = RepositoryFile('/Users/mircoperna/Documents/Universita/Tesi/Code/Thesis/Dates/PPI/human.txt').readFile()
-PPIs = []
+class ETLPPI():
+        def __init__(self):
+                self._dfPPI = RepositoryFile('/Users/mircoperna/Documents/Universita/Tesi/Code/Thesis/Dates/PPI/human.txt').readFile()
+                self._prefix = ["uniprotkb:",]
+                self._pattern = r"^(" + "|".join(self._prefix) + ")"
 
-# prefix = ["uniprotkb:", "intact:"]
-prefix = ["uniprotkb:",]
-pattern = r"^(" + "|".join(prefix) + ")"
-regex = re.compile(pattern)
-        # if(regex.match(proteinId)):
-        #     return re.sub(pattern, "", proteinId)
-        # else:
-        #     print("New prefix find ", proteinId)
-        #     return None
+        def countProtein(self):
+                print(self._dfPPI['#ID(s) interactor A'].nunique())
         
-result_df= dfPPI[ dfPPI['#ID(s) interactor A'].str.contains(pattern) == True ]
-print(result_df['#ID(s) interactor A'].nunique())
+        def filterPPI(self):
+                self._dfPPI= self._dfPPI[(self._dfPPI['#ID(s) interactor A'].str.contains(self._pattern) == True)]
+                self._dfPPI= self._dfPPI[(self._dfPPI['ID(s) interactor B'].str.contains(self._pattern) == True)]
+                self._dfPPI = self._dfPPI.drop_duplicates(subset=['#ID(s) interactor A','ID(s) interactor B','Confidence value(s)'])
 
-# for i,row in dfPPI.iterrows():
-#     PPIs.append(PPIModel(row['#ID(s) interactor A'], row['ID(s) interactor B'], row['Confidence value(s)']))
-    
+        def mappingPPI(self):
+                unique_vals = pd.unique(self._dfPPI[['#ID(s) interactor A', 'ID(s) interactor B']].values.ravel())
+                mapping = {val: i+1 for i, val in enumerate(unique_vals)}
+                self._dfPPI = self._dfPPI.assign(
+                                id_A_num = self._dfPPI['#ID(s) interactor A'].map(mapping),
+                                id_B_num=self._dfPPI['ID(s) interactor B'].map(mapping)
+                                )
+                print(self._dfPPI)
+                
+        def fromDataFrameToModel(self):
+                PPIs = []
+                for index, row in self._dfPPI.iterrows():
+                        newPPI = PPIModel(row['#ID(s) interactor A'], row['ID(s) interactor B'],row['id_A_num'], row['id_B_num'] , row['Confidence value(s)'])
+                        PPIs.append(newPPI)
+                
+                return PPIs
+        
+
+etl = ETLPPI()
+etl.filterPPI()
+etl.countProtein()
+etl.mappingPPI()
+PPIs = etl.fromDataFrameToModel()
+# df = pd.DataFrame().from_records(ppi.toDict() for ppi in PPIs)
+# df = pd.crosstab(df.proteinAId, df.proteinBId)
+# idx = df.columns.union(df.index)
+# df = df.reindex(index = idx, columns=idx, fill_value=0)
+
+# edgeList =  []
 # for ppi in PPIs:
-#     ppi.toString()
+#         edgeList.append((ppi._proteinAId, ppi._proteinBId))
 
+
+# g = ig.Graph(edges=edgeList)

@@ -15,6 +15,6 @@ class RepositoryFile():
         return True
     
     def readFile(self):
-        df = pd.read_csv(self._fileName,sep='\t',on_bad_lines='warn', nrows=10000)
+        df = pd.read_csv(self._fileName,sep='\t',on_bad_lines='warn', nrows=20)
         return df
     

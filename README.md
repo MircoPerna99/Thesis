@@ -1,7 +1,7 @@
 # Thesis
 python3 -m venv venv     
 source venv/bin/activate
-pip3 install matplotlib numpy igraph
+pip3 install matplotlib numpy igraph pyspark
 
 
 # import sys
