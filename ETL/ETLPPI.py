@@ -5,8 +5,9 @@ sys.path.append(os.path.abspath("../"))
 
 from DataAccess.Model.PPI_Model import PPIModel
 from DataAccess.Repository.RepositoryFile import RepositoryFile
+import matplotlib.pyplot as plt
 import pandas as pd
-import igraph as ig
+import networkx as nx
 import re
 
 class ETLPPI():
@@ -21,6 +22,7 @@ class ETLPPI():
         def filterPPI(self):
                 self._dfPPI= self._dfPPI[(self._dfPPI['#ID(s) interactor A'].str.contains(self._pattern) == True)]
                 self._dfPPI= self._dfPPI[(self._dfPPI['ID(s) interactor B'].str.contains(self._pattern) == True)]
+                self._dfPPI= self._dfPPI[((self._dfPPI['ID(s) interactor B'] != self._dfPPI['#ID(s) interactor A']) == True)]
                 self._dfPPI = self._dfPPI.drop_duplicates(subset=['#ID(s) interactor A','ID(s) interactor B','Confidence value(s)'])
 
         def mappingPPI(self):
@@ -46,7 +48,17 @@ etl.filterPPI()
 etl.countProtein()
 etl.mappingPPI()
 PPIs = etl.fromDataFrameToModel()
-# df = pd.DataFrame().from_records(ppi.toDict() for ppi in PPIs)
+df = pd.DataFrame().from_records(ppi.toDict() for ppi in PPIs)
+G = nx.from_pandas_edgelist(df, "proteinAId", "proteinBId", "score")
+options = {
+    "font_size": 8,
+    "node_size": 100,
+    "node_color": "green",
+    "edgecolors": "black",
+    "with_labels": True
+}
+nx.draw(G, **options)
+plt.show()
 # df = pd.crosstab(df.proteinAId, df.proteinBId)
 # idx = df.columns.union(df.index)
 # df = df.reindex(index = idx, columns=idx, fill_value=0)
