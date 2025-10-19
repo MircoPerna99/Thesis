@@ -1,6 +1,7 @@
 import re
 class PPIModel():
-    def __init__(self, proteinAId : str, proteinBId : str, proteinAIdNum : int, proteinBIdNum : int, confidenceScore : str):
+    def __init__(self, proteinAId : str, proteinBId : str, confidenceScore : str, proteinAIdNum : int = 1, proteinBIdNum : int = 1):
+        self._interactionId : str
         self._proteinAId : str
         self._proteinBId : str
         self._proteinAIdNum : int
@@ -54,9 +55,12 @@ class PPIModel():
         match = re.search(pattern, confidenceScore)
         if match:
             return float(match.group().replace(self._dirtyDataOnConfidenceScore, ""))
+    
+    def setIdInteraction(self, id:str):
+        self._interactionId = id
         
     def toString(self):
-        print(self._proteinAId, self._proteinBId, self._score)
+        print(self._interactionId,self._proteinAId, self._proteinBId, self._score)
         
     def toDict(self):
         return {
