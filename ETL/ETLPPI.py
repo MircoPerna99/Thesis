@@ -27,6 +27,7 @@ class ETLPPI():
                 self._dfPPI = self._dfPPI.drop_duplicates(subset=['#ID(s) interactor A','ID(s) interactor B','Confidence value(s)'])
 
         def mappingPPI(self):
+                raise Exception("Define if it shoulf be used")
                 unique_vals = pd.unique(self._dfPPI[['#ID(s) interactor A', 'ID(s) interactor B']].values.ravel())
                 mapping = {val: i+1 for i, val in enumerate(unique_vals)}
                 self._dfPPI = self._dfPPI.assign(
@@ -38,43 +39,23 @@ class ETLPPI():
         def fromDataFrameToModel(self):
                 PPIs = []
                 for index, row in self._dfPPI.iterrows():
-                        newPPI = PPIModel(row['#ID(s) interactor A'], row['ID(s) interactor B'] , row['Confidence value(s)'])
+                        newPPI = PPIModel()
+                        newPPI.setValuesFromText(row['#ID(s) interactor A'], row['ID(s) interactor B'] , row['Confidence value(s)'])
                         PPIs.append(newPPI)
                 
                 return PPIs
         
+        def syncFromTextToMongo(self):
+                self.filterPPI()
+                self.countProtein()
+                PPIs = self.fromDataFrameToModel()
+
+                repositoryMongo = RepositoryMongo()
+
+                for ppi in PPIs:
+                        repositoryMongo.insertPPI(ppi)
+
+                repositoryMongo.close_connection()
+        
 
 etl = ETLPPI()
-etl.filterPPI()
-etl.countProtein()
-# etl.mappingPPI()
-PPIs = etl.fromDataFrameToModel()
-
-repositoryMongo = RepositoryMongo()
-
-for ppi in PPIs:
-        repositoryMongo.insertPPI(ppi)
-        print(ppi._interactionId)
-
-repositoryMongo.close_connection()
-# df = pd.DataFrame().from_records(ppi.toDict() for ppi in PPIs)
-# G = nx.from_pandas_edgelist(df, "proteinAId", "proteinBId", "score")
-# options = {
-#     "font_size": 8,
-#     "node_size": 100,
-#     "node_color": "green",
-#     "edgecolors": "black",
-#     "with_labels": True
-# }
-# nx.draw(G, **options)
-# plt.show()
-# df = pd.crosstab(df.proteinAId, df.proteinBId)
-# idx = df.columns.union(df.index)
-# df = df.reindex(index = idx, columns=idx, fill_value=0)
-
-# edgeList =  []
-# for ppi in PPIs:
-#         edgeList.append((ppi._proteinAId, ppi._proteinBId))
-
-
-# g = ig.Graph(edges=edgeList)
