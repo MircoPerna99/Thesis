@@ -19,7 +19,7 @@ class ETLDTI():
                 DTIs = []
                 for index, row in self._dfDTI.iterrows():
                         newDTI = DTIModel()
-                        newDTI.setValuesFromText(row['UniProt ID'], row['Drug IDs'])
+                        newDTI.setValuesFromText(row['Drug IDs'], row['UniProt ID'])
                         DTIs.append(newDTI)
                 
                 return DTIs
