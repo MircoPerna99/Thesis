@@ -14,6 +14,7 @@ from pyspark.ml import Pipeline
 class ALSModel():
     def __init__(self, data):
         self.indexing_name(data)
+        self.train()
         
     def indexing_name(self,data):
         self.drug_indexer = StringIndexer(inputCol = "drugId", outputCol = "ID_Drug_Index").fit(data)
@@ -23,7 +24,7 @@ class ALSModel():
         self.data.show()
     
     def train(self):
-        (training, test) = self.data.randomSplit([0.8, 0.1], seed=42)
+        (training, test) = self.data.randomSplit([0.9, 0.1], seed=42)
         
         regParams = [0.01, 0.1]
         ranks = [25,30,35]
@@ -65,7 +66,6 @@ class ALSModel():
                                                                                .orderBy("drugId","rating")
                                                                                
     def calculate_recommended_proteins(self):
-            self.train()
             amount_proteins_for_drug = 7
             proteins_recommended = self.model.recommendForAllUsers(amount_proteins_for_drug)
             proteins_recommended = proteins_recommended.withColumn("proteinAndRating", explode(proteins_recommended.recommendations))\
