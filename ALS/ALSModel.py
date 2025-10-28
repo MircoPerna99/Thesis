@@ -21,15 +21,19 @@ class ALSModel():
         self.prontein_indexer = StringIndexer(inputCol = "proteinId", outputCol = "ID_Protein_Index").fit(data)
         pipeline = Pipeline(stages = [self.drug_indexer, self.prontein_indexer])
         self.data = pipeline.fit(data).transform(data)
-        self.data.show()
+        # self.data.show()
     
     def train(self):
         (training, test) = self.data.randomSplit([0.9, 0.1], seed=42)
-        
+        print("Amount of test:"+ str(test.count()))
+
         regParams = [0.01, 0.1]
         ranks = [25,30,35]
         alphas = [10.0, 20.0, 40.0, 60.0, 80.0, 100.0]
-        
+        #Best hyperparameters
+        # regParams = [0.1]
+        # ranks = [30]
+        # alphas = [10.0]
         self.aus_regParam = 0.0
         self.aus_rank = 0
         self.aus_alpha = 0.0
@@ -52,6 +56,8 @@ class ALSModel():
                         self.aus_alpha = alpha
                         self.aus_rmse = rmse
                         self.model = aus_model
+                        
+                    predictions.show()
 
                     print("For regParam: {0}, rank:{1}, alpha:{2}, RMSE:{3}".format(regParam, rank, alpha, rmse))
                      
@@ -70,8 +76,8 @@ class ALSModel():
             proteins_recommended = self.model.recommendForAllUsers(amount_proteins_for_drug)
             proteins_recommended = proteins_recommended.withColumn("proteinAndRating", explode(proteins_recommended.recommendations))\
                                                             .select("ID_Drug_Index", "proteinAndRating.*")
-            proteins_recommended.show() 
-            self.data.show()
+            # proteins_recommended.show() 
+            # self.data.show()
             self.from_index_to_name(proteins_recommended)
-            self.drug_proteins_recommended.show()
+            # self.drug_proteins_recommended.show()
             

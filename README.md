@@ -1,7 +1,7 @@
 # Thesis
 python3 -m venv venv     
 source venv/bin/activate
-pip3 install matplotlib numpy networkx pyspark scipy
+pip3 install matplotlib numpy networkx pyspark scipy pymongo
 
 
 # import sys
@@ -40,3 +40,15 @@ uniprot all'incirca 2602 proteine su 1000 righe
 
 
 # g = ig.Graph(edges=edgeList)
+
+Chosen parameters: regParam: 0.01, maxIter:5500, initStd:0.1,factorSize:3, RMSE:1.1691024908715422
+Chosen parameters: regParam: 0.01, maxIter:1000, initStd:0.1,factorSize:11, RMSE:1.1748271059079674
+Chosen parameters: regParam: 0.1, maxIter:900, initStd:0.1,factorSize:2, RMSE:1.0948655387229844
+
+
+Chosen parameters: regParam: 0.01, maxIter:5000, initStd:0.1,factorSize:2, RMSE:0.7995355277211346
+
+Chosen parameters for ALS: regParam: 0.1, rank:35, alpha:10.0, RMSE:0.7379567205862622
+Chosen parameters for FM: regParam: 0.1, maxIter:1000, initStd:0.1,factorSize:2, RMSE:1.529792468203947
+Chosen parameters for FM WEIGHT: regParam: 0.1, maxIter:1000, initStd:0.1,factorSize:2, RMSE:0.6768022922853879
+Chosen parameters for FM WEIGHT: regParam: 0.1, maxIter:1000, initStd:0.1,factorSize:2, RMSE:0.7097834369526423 senza i 0.5 sotto

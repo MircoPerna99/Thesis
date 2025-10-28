@@ -442,3 +442,15 @@ ALS/output_folder_dataset_FM/.part-00000-a3b9120a-91f8-4ae5-9b10-64217213d68c-c0
 ALS/output_folder_dataset_FM/part-00000-a3b9120a-91f8-4ae5-9b10-64217213d68c-c000.csv
 ALS/output_folder_no_model/.part-00000-0e39c2a9-aa76-4311-b126-1b3411b1f661-c000.csv.crc
 ALS/output_folder_no_model/part-00000-0e39c2a9-aa76-4311-b126-1b3411b1f661-c000.csv
+ALS/interactions_DP/part-00000-c0bc3d0d-b8ac-42da-88b1-100032cbed34-c000.csv
+ALS/analyses_model_interactions_DP/_SUCCESS
+ALS/analyses_model_interactions_DP/.part-00000-a0cd7cee-feeb-4a88-870e-31753213c32d-c000.csv.crc
+ALS/analyses_model_interactions_DP/._SUCCESS.crc
+ALS/analyses_model_interactions_DP/part-00000-a0cd7cee-feeb-4a88-870e-31753213c32d-c000.csv
+ALS/analyses_model_interactions_DP_weight/_SUCCESS
+ALS/analyses_model_interactions_DP_weight/._SUCCESS.crc
+ALS/analyses_model_interactions_DP_weight/.part-00000-dfb6e0c0-accb-4d81-a2a4-a739351878c9-c000.csv.crc
+ALS/analyses_model_interactions_DP_weight/part-00000-dfb6e0c0-accb-4d81-a2a4-a739351878c9-c000.csv
+ALS/interactions_DP/_SUCCESS
+ALS/interactions_DP/._SUCCESS.crc
+ALS/interactions_DP/.part-00000-c0bc3d0d-b8ac-42da-88b1-100032cbed34-c000.csv.crc
