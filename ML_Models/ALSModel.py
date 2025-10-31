@@ -6,34 +6,29 @@ sys.path.append(os.path.abspath("../"))
 from pyspark.ml.recommendation import ALS
 from pyspark.ml.evaluation import RegressionEvaluator
 from pyspark.sql.functions import explode
-from pyspark.sql.functions import first
-from pyspark.ml.feature import StringIndexer
-from pyspark.ml.feature import IndexToString
+from pyspark.ml.feature import StringIndexer, IndexToString
 from pyspark.ml import Pipeline
-from pyspark.ml.tuning import CrossValidator, ParamGridBuilder, CrossValidatorModel
+from pyspark.ml.tuning import CrossValidator, ParamGridBuilder
+from configuration import Configuration
+
 class ALSModel():
     def __init__(self, data):
+        self._confing = Configuration()
         self.indexing_name(data)
-        # self.train()
         
     def indexing_name(self,data):
         self.drug_indexer = StringIndexer(inputCol = "drugId", outputCol = "ID_Drug_Index").fit(data)
         self.prontein_indexer = StringIndexer(inputCol = "proteinId", outputCol = "ID_Protein_Index").fit(data)
         pipeline = Pipeline(stages = [self.drug_indexer, self.prontein_indexer])
         self.data = pipeline.fit(data).transform(data)
-        # self.data.show()
     
-    def train(self, seed):
+    def train(self, seed = 42):
         (training, test) = self.data.randomSplit([0.8, 0.2], seed=seed)
-        print("Amount of test:"+ str(test.count()))
 
-        regParams = [0.01, 0.1]
-        ranks = [25,30,35]
-        alphas = [10.0, 20.0, 40.0, 60.0, 80.0, 100.0]
-        #Best hyperparameters
-        # regParams = [0.1]
-        # ranks = [30,35]
-        # alphas = [10.0]
+        regParams = self._confing['hyperpameters_ALS']['regParams']
+        ranks = self._confing['hyperpameters_ALS']['ranks']
+        alphas = self._confing['hyperpameters_ALS']['alphas']
+
         self.aus_regParam = 0.0
         self.aus_rank = 0
         self.aus_alpha = 0.0
@@ -56,9 +51,8 @@ class ALSModel():
                         self.aus_alpha = alpha
                         self.aus_rmse = rmse
                         self.model = aus_model
+                        self.predictions = predictions
                         
-                    predictions.show()
-
                     print("For regParam: {0}, rank:{1}, alpha:{2}, RMSE:{3}".format(regParam, rank, alpha, rmse))
                      
         print("Chosen parameters: regParam: {0}, rank:{1}, alpha:{2}, RMSE:{3}".format(self.aus_regParam, self.aus_rank, self.aus_alpha, self.aus_rmse))          
@@ -76,10 +70,7 @@ class ALSModel():
             proteins_recommended = self.model.recommendForAllUsers(amount_proteins_for_drug)
             proteins_recommended = proteins_recommended.withColumn("proteinAndRating", explode(proteins_recommended.recommendations))\
                                                             .select("ID_Drug_Index", "proteinAndRating.*")
-            # proteins_recommended.show() 
-            # self.data.show()
             self.from_index_to_name(proteins_recommended)
-            # self.drug_proteins_recommended.show()
     
     def crossValidation(self):
         print("Inizio")

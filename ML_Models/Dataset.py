@@ -18,8 +18,8 @@ from pyspark.sql import Row
 from pyspark.sql.functions import collect_list
 from pyspark.sql.functions import expr
 from pyspark.sql.functions import abs
-from ALS.ALSModel import ALSModel
-from ALS.FMModel import FMModel
+from ML_Models.ALSModel import ALSModel
+from ML_Models.FMModel import FMModel
 from pyspark.sql import functions as F
 from pyspark.sql.functions import first,asc, desc
 from configuration import Configuration
@@ -177,10 +177,11 @@ df_PPI = df_PPI.withColumnRenamed("proteinBId", "proteinId")
 seeds = random.sample(range(1, 101), 10)
 
 # modelFM_Weight = FMModel(df,df_DTI, df_PPI_Weight, True)
-modelFM_No_Weight = FMModel(df,df_DTI, df_PPI, True)
-modelFM_No_Weight.train()
+# modelFM_No_Weight = FMModel(df,df_DTI, df_PPI, True)
+# modelFM_No_Weight.train()
 # modelFM_No_Weight.crossValidation()
-# modelAls = ALSModel(df)
+modelAls = ALSModel(df)
+modelAls.train()
 # modelAls.crossValidation()
 # resultsWeight = []
 # resultsNoWeight = []
