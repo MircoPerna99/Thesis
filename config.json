@@ -1,0 +1,5 @@
+{
+    "connection_string_mongo": "mongodb://localhost:27017/",
+    "takeAllProtein" : false,
+    "proteinsToAnalyse" : ["O54824", "Q00403", "Q12933", "Q09472", "Q92793", "P67870","Q04206", "Q99728"]
+}

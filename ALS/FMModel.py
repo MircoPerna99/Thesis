@@ -14,26 +14,34 @@ from pyspark.ml.feature import VectorAssembler
 from pyspark.ml.regression import FMRegressor
 from pyspark.sql import SparkSession
 from pyspark.ml.functions import vector_to_array
+from pyspark.sql import functions as F
+from pyspark.ml.tuning import CrossValidator, ParamGridBuilder, CrossValidatorModel
 
 
 import pandas as pd
 
 class FMModel():
     def __init__(self, data, DTI_fm = None, PPI_fm = None, isAlternative = False):
+        
+        self.spark = SparkSession.builder \
+                            .appName("FMModel")\
+                            .config("spark.driver.host", "localhost") \
+                            .config("spark.driver.bindAddress", "127.0.0.1") \
+                            .getOrCreate()
+                            
+        self.spark.conf.set("spark.sql.debug.maxToStringFields", 100)
         self.data = data
         if(isAlternative):
             self.createMatrixAlternative(DTI_fm, PPI_fm)
         else:
             self.createMatrix()
         self.indexing_name()
-        self.train()
+        # self.train()
 
         
     def indexing_name(self):
-        #self.data = self.data.drop('proteinId_int')
         self.data = self.data.drop('drugId')
         self.data = self.data.drop('proteinId')
-        #self.data = self.data.drop('drugId_int')
         self.data = self.data.drop('drugId_one_hot')
         self.data = self.data.drop('proteinId_one_hot')
         columnsToSave = ["amount_interactions", "proteinId_int", "drugId_int"]
@@ -48,7 +56,8 @@ class FMModel():
             columns_name = [str(row.drugId) for row in self.data.select("drugId").distinct().collect()] 
         else:
             columns_name = [str(row.proteinId) for row in self.data.select("proteinId").distinct().collect()] 
-
+        
+        columns_name.sort()
         matrix = []
         for name in columns_name:
             listToAdd = [0]*len(columns_name)
@@ -63,19 +72,16 @@ class FMModel():
             columns_name.append("proteinId_one_hot")
         
         return pd.DataFrame(data=matrix,columns=columns_name)
-        
+           
     def createMatrix(self):
         df_drugs = self._createOneHotCodeDF(True)
         df_target = self._createOneHotCodeDF(False)
         
-        spark = SparkSession.builder \
-                .appName("FMModel")\
-                .config("spark.driver.host", "localhost") \
-                .config("spark.driver.bindAddress", "127.0.0.1") \
-                .getOrCreate()
-
-        df_drugs_ps = spark.createDataFrame(df_drugs)
-        df_target_ps = spark.createDataFrame(df_target)
+        df_drugs_ps = self.spark.createDataFrame(df_drugs)
+        df_target_ps = self.spark.createDataFrame(df_target)
+        
+        df_drugs_ps = df_drugs_ps.orderBy("drugId_one_hot")
+        df_target_ps = df_target_ps.orderBy("proteinId_one_hot")
         
         df_table = self.data.orderBy("drugId").groupBy("drugId").pivot("proteinId").agg(first("amount_interactions")).fillna(0)
         for column in df_table.columns:
@@ -88,23 +94,15 @@ class FMModel():
         df_table = df_table.join(df_inter, df_table.drugId == df_inter.drugId_int)
         df_table = df_table.join(df_drugs_ps, df_table.drugId == df_drugs_ps.drugId_one_hot)
         df_table = df_table.join(df_target_ps, df_table.proteinId_int == df_target_ps.proteinId_one_hot)
-        self.data = df_table
+        self.data = df_table.orderBy("drugId_int", "proteinId_int")
         
     def createMatrixAlternative(self, DTI_fm, PPI_fm):
         df_drugs = self._createOneHotCodeDF(True)
         df_target = self._createOneHotCodeDF(False)
-        
-        spark = SparkSession.builder \
-                .appName("FMModel")\
-                .config("spark.driver.host", "localhost") \
-                .config("spark.driver.bindAddress", "127.0.0.1") \
-                .getOrCreate()
 
-        df_drugs_ps = spark.createDataFrame(df_drugs)
-        df_target_ps = spark.createDataFrame(df_target)
-        
-        # df_table = self.data.orderBy("drugId").groupBy("drugId").pivot("proteinId").agg(first("amount_interactions")).fillna(0)
-        
+        df_drugs_ps = self.spark.createDataFrame(df_drugs)
+        df_target_ps = self.spark.createDataFrame(df_target)
+                
         df_inter = self.data.withColumnRenamed("drugId", "drugId_int")
         df_inter = df_inter.withColumnRenamed("proteinId", "proteinId_int")
         
@@ -117,23 +115,23 @@ class FMModel():
         for column in PPI_fm.columns:
             if column != "proteinId": 
                 PPI_fm = PPI_fm.withColumnRenamed(column, f"{column}_PPI")
-                
-            
         
+        DTI_fm = DTI_fm.orderBy("drugId")  
+        PPI_fm = PPI_fm.orderBy("proteinId")   
         df_table = df_inter.join(DTI_fm, DTI_fm.drugId == df_inter.drugId_int)
         df_table = df_table.join(PPI_fm, PPI_fm.proteinId == df_inter.proteinId_int)
         df_table = df_table.join(df_drugs_ps, df_table.drugId_int == df_drugs_ps.drugId_one_hot)
         df_table = df_table.join(df_target_ps, df_table.proteinId_int == df_target_ps.proteinId_one_hot)
-        self.data = df_table
+        self.data = df_table.orderBy("drugId_int", "proteinId_int")
 
-    def train(self):
-        (training, test) = self.data.randomSplit([0.9, 0.1], seed=42)
+    def train(self, seed = 42):
+        (training, test) = self.data.randomSplit([0.8, 0.2], seed=seed)
         
         print("Amount of test:"+ str(test.count()))        
         regParams = [0.1]
         maxIters = [1000]
         initStds = [0.1]
-        factorSizes = [2]
+        factorSizes = [2,8,12]
         
         self.aus_regParam = 0.0
         self.aus_maxIter = 0
@@ -159,8 +157,46 @@ class FMModel():
                             self.aus_rmse = rmse
                             self.model = fm_model
                             self.predictions = predictions
-                        # self.predictions.show()
-                        # df.write.mode("overwrite").option("header", True).csv("output_fm_prediction")
                         print("For regParam: {0}, maxIter:{1}, initStd:{2},factorSize:{3} , RMSE:{4}".format(regParam, maxIter, initStd, factorSize,rmse))
 
         print("Chosen parameters: regParam: {0}, maxIter:{1}, initStd:{2},factorSize:{3}, RMSE:{4}".format(self.aus_regParam, self.aus_maxIter, self.aus_initStd,self.aus_factorSize, self.aus_rmse))          
+
+    def dataframeOthersInteraction(self):
+        df_table = self.data.orderBy("drugId").groupBy("drugId").pivot("proteinId").agg(first("amount_interactions")).fillna(0)
+        drugs = []
+        for column in df_table.columns:
+                if column != "drugId": 
+                    drugs.append(column)
+                df_table = df_table.withColumnRenamed(column, f"{column}_Tot")
+                
+        df_table = df_table.join(self.data, self.data.drugId == df_table.drugId_Tot)
+        # df_table.show()
+        for drug in drugs:
+            df_table = df_table.withColumn(f"{drug}_Tot", F.when(F.col('proteinId') == drug, 0).otherwise(F.col(f"{drug}_Tot")))
+        
+        # df_table.show()
+        
+        df_table = df_table.drop("drugId_Tot")
+        df_table = df_table.drop("amount_interactions")
+        df_table = df_table.withColumnRenamed("drugId","drugId_Tot")
+        df_table = df_table.withColumnRenamed("proteinId","proteinId_Tot")
+        # df_table.show()
+        return df_table
+    
+    def crossValidation(self):
+        self.aus_regParam = 0.1
+        self.aus_maxIter = 100
+        self.aus_initStd = 0.1
+        self.aus_factorSize = 2
+        print("Inizio")
+        fm = FMRegressor(featuresCol='features', labelCol='amount_interactions', maxIter=1000, initStd = 0.1, factorSize=2, regParam = 0.1)
+        grid = ParamGridBuilder().build()
+        
+        evaluator = RegressionEvaluator(metricName = "rmse", labelCol = "amount_interactions", predictionCol = "prediction")
+        
+        cv = CrossValidator(estimator=fm, estimatorParamMaps=grid, evaluator=evaluator,parallelism=2, numFolds=5)
+        print("Inizio fit")
+        cvModel = cv.fit(self.data)
+        print("fine fit")
+        print(cvModel.avgMetrics)
+

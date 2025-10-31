@@ -2,9 +2,12 @@ from pymongo import MongoClient
 from DataAccess.Model.PPI_Model import PPIModel
 from DataAccess.Model.DTI_Model import DTIModel
 import json
+from configuration import Configuration
+
 class RepositoryMongo():
     def __init__(self):
-        self.client = MongoClient("mongodb://localhost:27017/")
+        self.config = Configuration()
+        self.client = MongoClient(self.config['connection_string_mongo'])
         self.database = self.client["Thesis"]
         
     def insertPPI(self, PPI: PPIModel):

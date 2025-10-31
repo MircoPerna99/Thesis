@@ -22,12 +22,14 @@ from ALS.ALSModel import ALSModel
 from ALS.FMModel import FMModel
 from pyspark.sql import functions as F
 from pyspark.sql.functions import first,asc, desc
-
+from configuration import Configuration
+import random
 
 class Dataset():
     def __init__(self):
-        self.allProtein = True
-        self.proteinsForTest = ["O54824", "Q00403", "Q12933", "Q09472", "Q92793", "P67870","Q04206", "Q99728"]
+        self.config = Configuration()
+        self.allProtein = self.config["takeAllProtein"]
+        self.proteinsForTest = self.config["proteinsToAnalyse"]
         self.spark = SparkSession.builder \
                         .appName("Collaborative_Filtering")\
                         .config("spark.driver.host", "localhost") \
@@ -116,33 +118,22 @@ class Dataset():
     
     def dataframeForTestALS(self):            
         dfDTI_sp = self._DTIToDataFrame()
-        # dfDTI_sp.show()
-
         dfPPI_sp = self._PPIToDataFrame()
-        # dfPPI_sp.show()
 
         joinedDF = dfDTI_sp.join(dfPPI_sp, (dfDTI_sp.proteinId == dfPPI_sp.proteinAId) & (dfPPI_sp.score >= 0.5))
-        # joinedDF.show()
 
         DTIsGrouped = dfDTI_sp.groupBy("drugId").agg(collect_list("proteinId").alias("proteins")).orderBy("drugId")
         DTIsGrouped = DTIsGrouped.withColumnRenamed("drugId", "drugId_group")
-        # DTIsGrouped.show()
                 
-
         joinedDF = joinedDF.join(DTIsGrouped, joinedDF.drugId == DTIsGrouped.drugId_group)
         joinedDF = joinedDF.select(joinedDF["drugId"], joinedDF["proteinId"], joinedDF["proteinAId"], joinedDF["proteinBId"],joinedDF["Proteins"])
-        # joinedDF.show()
-
         joinedDF = joinedDF.withColumn("interactor_drug_target", expr("array_contains(Proteins, proteinBId)"))
-        # joinedDF.show()
         joinedDF = joinedDF.filter(joinedDF.interactor_drug_target == False)
-        # joinedDF.show()
 
         columns_to_group_by = ["drugId", "proteinBId"]
         joinedDF= joinedDF.groupBy(columns_to_group_by).count()
         joinedDF= joinedDF.withColumnRenamed("count", "amount_interactions")   
         joinedDF= joinedDF.withColumnRenamed("proteinBId", "proteinId")
-        # joinedDF.show()
 
         return joinedDF
 
@@ -157,15 +148,67 @@ df.show()
 df_DTI = dataset._DTIToDataFrame()
 df_DTI = df_DTI.orderBy("drugId").groupBy("drugId").pivot("proteinId").agg(F.lit(1)).fillna(0)
 df_PPI = dataset._PPIToDataFrame(False)
-df_PPI = df_PPI.orderBy(F.col('proteinBId').asc(), F.col('score').desc()).groupBy("proteinBId").pivot("proteinAId").agg(first("score")).fillna(0)
-df_PPI = df_PPI.withColumnRenamed("proteinBId", "proteinId")
-result = (df.orderBy("drugId").groupBy("drugId").pivot("proteinId").agg(first("amount_interactions")).fillna(0))
+df_PPI_Weight = df_PPI.orderBy(F.col('proteinBId').asc(), F.col('score').desc()).groupBy("proteinBId").pivot("proteinAId").agg(first("score")).fillna(0)
 
-result.write.mode("overwrite").option("header", True).csv("interactions_DP")
+df_PPI = df_PPI.orderBy('proteinBId').groupBy("proteinBId").pivot("proteinAId").agg(F.lit(1)).fillna(0)
+
+df_PPI_Weight = df_PPI_Weight.withColumnRenamed("proteinBId", "proteinId")
+df_PPI = df_PPI.withColumnRenamed("proteinBId", "proteinId")
+# result = (df.orderBy("drugId").groupBy("drugId").pivot("proteinId").agg(first("amount_interactions")).fillna(0))
+
+# result.write.mode("overwrite").option("header", True).csv("interactions_DP")
 
 # modelAls = ALSModel(df)
 # modelFM = FMModel(df, False)
-modelFM_Weight = FMModel(df,df_DTI, df_PPI, True)
+
+#modelFM_Weight = FMModel(df,df_DTI, df_PPI, True)
+# modelFM_Weight.predictions.show()
+# for i in range(5):
+#     modelFM_Weight = FMModel(df,df_DTI, df_PPI, True)
+#     results.append(modelFM_Weight.data.columns)
+
+# for i in range(len(results)):
+#     for j in range(i, len(results)):
+#         flag = all(x == y for x, y in zip(results[i], results[j]))
+#         if(not flag):
+#             print(flag)
+
+
+seeds = random.sample(range(1, 101), 10)
+
+# modelFM_Weight = FMModel(df,df_DTI, df_PPI_Weight, True)
+modelFM_No_Weight = FMModel(df,df_DTI, df_PPI, True)
+modelFM_No_Weight.train()
+# modelFM_No_Weight.crossValidation()
+# modelAls = ALSModel(df)
+# modelAls.crossValidation()
+# resultsWeight = []
+# resultsNoWeight = []
+# resultAls = []
+# for seed in seeds:
+#     modelAls.train(seed)
+#     resultAls.append("Chosen parameters: regParam: {0}, rank:{1}, alpha:{2}, RMSE:{3}".format(modelAls.aus_regParam, modelAls.aus_rank, modelAls.aus_alpha, modelAls.aus_rmse))  
+    
+#     # modelFM_Weight.train(seed)
+#     # resultsWeight.append("Chosen parameters for FM WEIGHT: regParam: {0}, maxIter:{1}, initStd:{2},factorSize:{3}, RMSE:{4}".format(modelFM_Weight.aus_regParam, modelFM_Weight.aus_maxIter, modelFM_Weight.aus_initStd,modelFM_Weight.aus_factorSize, modelFM_Weight.aus_rmse))
+
+#     modelFM_No_Weight.train(seed)
+#     resultsNoWeight.append("Chosen parameters for FM NO WEIGHT: regParam: {0}, maxIter:{1}, initStd:{2},factorSize:{3}, RMSE:{4}".format(modelFM_No_Weight.aus_regParam, modelFM_No_Weight.aus_maxIter, modelFM_No_Weight.aus_initStd,modelFM_No_Weight.aus_factorSize, modelFM_No_Weight.aus_rmse))
+
+# print("results ALS")
+# for result in resultAls:
+#     print(result)
+
+# print("results weight")
+# for result in resultsWeight:
+#     print(result)
+    
+# print("results no weight")
+# for result in resultsNoWeight:
+#     print(result)
+    
+
+    
 # modelAls.calculate_recommended_proteins()
 
 # testDf = modelAls.drug_proteins_recommended.join(modelFM.predictions, (modelFM.predictions.proteinId_int == modelAls.drug_proteins_recommended.proteinId ) & (modelFM.predictions.drugId_int == modelAls.drug_proteins_recommended.drugId ))
@@ -182,4 +225,4 @@ modelFM_Weight = FMModel(df,df_DTI, df_PPI, True)
 # result.write.mode("overwrite").option("header", True).csv("analyses_model_interactions_DP_weight")
 # print("Chosen parameters for ALS: regParam: {0}, rank:{1}, alpha:{2}, RMSE:{3}".format(modelAls.aus_regParam, modelAls.aus_rank, modelAls.aus_alpha, modelAls.aus_rmse))          
 # print("Chosen parameters for FM: regParam: {0}, maxIter:{1}, initStd:{2},factorSize:{3}, RMSE:{4}".format(modelFM.aus_regParam, modelFM.aus_maxIter, modelFM.aus_initStd,modelFM.aus_factorSize, modelFM.aus_rmse))          
-print("Chosen parameters for FM WEIGHT: regParam: {0}, maxIter:{1}, initStd:{2},factorSize:{3}, RMSE:{4}".format(modelFM_Weight.aus_regParam, modelFM_Weight.aus_maxIter, modelFM_Weight.aus_initStd,modelFM_Weight.aus_factorSize, modelFM_Weight.aus_rmse))          
+# print("Chosen parameters for FM WEIGHT: regParam: {0}, maxIter:{1}, initStd:{2},factorSize:{3}, RMSE:{4}".format(modelFM_Weight.aus_regParam, modelFM_Weight.aus_maxIter, modelFM_Weight.aus_initStd,modelFM_Weight.aus_factorSize, modelFM_Weight.aus_rmse))          

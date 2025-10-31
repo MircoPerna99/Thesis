@@ -10,11 +10,11 @@ from pyspark.sql.functions import first
 from pyspark.ml.feature import StringIndexer
 from pyspark.ml.feature import IndexToString
 from pyspark.ml import Pipeline
-
+from pyspark.ml.tuning import CrossValidator, ParamGridBuilder, CrossValidatorModel
 class ALSModel():
     def __init__(self, data):
         self.indexing_name(data)
-        self.train()
+        # self.train()
         
     def indexing_name(self,data):
         self.drug_indexer = StringIndexer(inputCol = "drugId", outputCol = "ID_Drug_Index").fit(data)
@@ -23,8 +23,8 @@ class ALSModel():
         self.data = pipeline.fit(data).transform(data)
         # self.data.show()
     
-    def train(self):
-        (training, test) = self.data.randomSplit([0.9, 0.1], seed=42)
+    def train(self, seed):
+        (training, test) = self.data.randomSplit([0.8, 0.2], seed=seed)
         print("Amount of test:"+ str(test.count()))
 
         regParams = [0.01, 0.1]
@@ -32,7 +32,7 @@ class ALSModel():
         alphas = [10.0, 20.0, 40.0, 60.0, 80.0, 100.0]
         #Best hyperparameters
         # regParams = [0.1]
-        # ranks = [30]
+        # ranks = [30,35]
         # alphas = [10.0]
         self.aus_regParam = 0.0
         self.aus_rank = 0
@@ -80,4 +80,17 @@ class ALSModel():
             # self.data.show()
             self.from_index_to_name(proteins_recommended)
             # self.drug_proteins_recommended.show()
-            
+    
+    def crossValidation(self):
+        print("Inizio")
+        aus_als = ALS(maxIter = 10, regParam = 0.1, rank = 35, alpha = 10, userCol = "ID_Drug_Index",
+                                  itemCol = "ID_Protein_Index", ratingCol = "amount_interactions",coldStartStrategy = "drop")       
+        grid = ParamGridBuilder().build()
+        
+        evaluator = RegressionEvaluator(metricName = "rmse", labelCol = "amount_interactions", predictionCol = "prediction")
+        
+        cv = CrossValidator(estimator=aus_als, estimatorParamMaps=grid, evaluator=evaluator,parallelism=2, numFolds=5)
+        print("Inizio fit")
+        cvModel = cv.fit(self.data)
+        print("fine fit")
+        print(cvModel.avgMetrics)

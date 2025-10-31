@@ -52,3 +52,29 @@ Chosen parameters for ALS: regParam: 0.1, rank:35, alpha:10.0, RMSE:0.7379567205
 Chosen parameters for FM: regParam: 0.1, maxIter:1000, initStd:0.1,factorSize:2, RMSE:1.529792468203947
 Chosen parameters for FM WEIGHT: regParam: 0.1, maxIter:1000, initStd:0.1,factorSize:2, RMSE:0.6768022922853879
 Chosen parameters for FM WEIGHT: regParam: 0.1, maxIter:1000, initStd:0.1,factorSize:2, RMSE:0.7097834369526423 senza i 0.5 sotto
+
+
+Chosen parameters for ALS: regParam: 0.1, rank:30, alpha:10.0, RMSE:0.7925182766951163
+Chosen parameters for FM WEIGHT: regParam: 0.1, maxIter:1000, initStd:0.1,factorSize:4, RMSE:0.7573606755777234
+
+Chosen parameters for ALS: regParam: 0.1, rank:35, alpha:10.0, RMSE:0.7779192118500439
+Chosen parameters for FM WEIGHT: regParam: 0.1, maxIter:1000, initStd:0.1,factorSize:12, RMSE:0.7384839341962539
+
+Chosen parameters for ALS: regParam: 0.1, rank:35, alpha:10.0, RMSE:0.7499679300272661
+Chosen parameters for FM WEIGHT: regParam: 0.1, maxIter:1000, initStd:0.1,factorSize:2, RMSE:0.7627806393957951
+
+Chosen parameters for ALS: regParam: 0.1, rank:35, alpha:10.0, RMSE:0.7993442962714252
+Chosen parameters for FM WEIGHT: regParam: 0.1, maxIter:1000, initStd:0.1,factorSize:8, RMSE:0.7285177197364054
+
+Chosen parameters: regParam: 0.1, rank:35, alpha:10.0, RMSE:0.7712180177574456
+Chosen parameters: regParam: 0.1, rank:25, alpha:10.0, RMSE:0.8697872492728245
+ Chosen parameters: regParam: 0.01, maxIter:1000, initStd:0.1,factorSize:2, RMSE:0.9743901860101165
+
+ Chosen parameters: regParam: 0.01, maxIter:1000, initStd:0.1,factorSize:2, RMSE:0.9430104642619399
+ Chosen parameters: regParam: 0.01, maxIter:5000, initStd:0.1,factorSize:26, RMSE:0.9414912812565441
+ Chosen parameters: regParam: 0.1, maxIter:200, initStd:0.01,factorSize:2, RMSE:0.9555595217250432
+
+0.7928889862823133
+0.8890113045186723
+
+ Chosen parameters: regParam: 0.1, rank:35, alpha:10.0, RMSE:0.8679239741689826

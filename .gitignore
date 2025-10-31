@@ -454,3 +454,6 @@ ALS/analyses_model_interactions_DP_weight/part-00000-dfb6e0c0-accb-4d81-a2a4-a73
 ALS/interactions_DP/_SUCCESS
 ALS/interactions_DP/._SUCCESS.crc
 ALS/interactions_DP/.part-00000-c0bc3d0d-b8ac-42da-88b1-100032cbed34-c000.csv.crc
+configuration.py
+ALS/interactions_DP/.part-00000-c77b06a5-5f64-439d-8806-d2c8e17745c8-c000.csv.crc
+ALS/interactions_DP/part-00000-c77b06a5-5f64-439d-8806-d2c8e17745c8-c000.csv
