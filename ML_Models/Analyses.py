@@ -9,6 +9,7 @@ from ML_Models.FMModel import FMModel
 from pyspark.sql import SparkSession
 from configuration import Configuration
 import random
+import json 
 
 def saveDataframeOnCSV(df, nameFile):
     df.write.mode("overwrite").option("header", True).csv(nameFile)
@@ -33,9 +34,9 @@ print("Starting initialization dataset")
 dataset = Dataset(sparkSession)
 print("Finished initialization dataset")
 print("Started to get PPI")
-dataset.getPPIForAnalyses()
+dataset.getPPIForAnalysesTemp()
 print("Finished to get PPI\nStarted to get DTI")
-dataset.getDTIForAnlyses()
+dataset.getDTIForAnlysesTemp()
 print("Finished to get DTI")
 
 if(config['showGraph']):
@@ -74,7 +75,7 @@ modelFM_Alternative = FMModel(df,sparkSession ,df_DTI, df_PPI, True)
 print("Completed initialization FM model alternative")
 
 print("Started analys with 10 different seed for create the dataset")
-seeds = random.sample(range(1, 101), 2)
+seeds = random.sample(range(1, 101), config['amountOfSeed'])
 resultAls = []
 resultsFM = []
 resultsFMAlternative = []

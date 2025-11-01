@@ -1,13 +1,14 @@
 {
+    "amountOfSeed":1,
     "connection_string_mongo": "mongodb://localhost:27017/",
     "hyperpameters_ALS" : {
-        "regParams" : [0.1],
-        "ranks" : [35],
-        "alphas" : [10.0]
+        "regParams" : [0.01, 0.1],
+        "ranks" : [25,30,35],
+        "alphas" : [10.0, 20.0, 40.0, 60.0, 80.0, 100.0]
     },
     "hyperpameters_FM" : {
-        "regParams" : [0.1],
-        "maxIters" : [100],
+        "regParams" : [0.1,0.01],
+        "maxIters" : [100,1000],
         "initStds" : [0.1],
         "factorSizes" : [2,8,12]
     },
@@ -20,5 +21,6 @@
     "PPIWeighted": false,
     "PPIFiltered": false,
     "showGraph": false,
-    "takeAllProtein" : false
+    "takeAllProtein" : true,
+    "takeDataFromFile" : true
 }

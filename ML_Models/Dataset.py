@@ -3,17 +3,10 @@ import os
 
 sys.path.append(os.path.abspath("../"))
 from DataAccess.Repository.RepositoryMongo import RepositoryMongo
-from DataAccess.Model.DTI_Model import DTIModel
+from DataAccess.Repository.RepositoryFile import RepositoryFile
 import pandas as pd
 from Services.Graphs.Graph import Graph
-from pyspark.ml.recommendation import ALS
-from pyspark.ml.evaluation import RegressionEvaluator
-from pyspark.sql.functions import explode
 from pyspark.sql.functions import first
-from pyspark.ml.feature import StringIndexer
-from pyspark.ml.feature import IndexToString
-from pyspark.ml import Pipeline
-from pyspark.sql import SparkSession
 from pyspark.sql import Row
 from pyspark.sql.functions import collect_list
 from pyspark.sql.functions import expr
@@ -63,6 +56,18 @@ class Dataset():
         
         self.PPIs = PPIs
         
+    def getPPIForAnalysesTemp(self):
+        PPIs = []
+        repositoryFile = RepositoryFile("NomeNonEsistente")
+        PPIs =  repositoryFile.readPPIs()
+        self.PPIs = PPIs    
+    
+    def getDTIForAnlysesTemp(self):
+        DTIs = []
+        repositoryFile = RepositoryFile("NomeNonEsistente")
+        DTIs =  repositoryFile.readDTIs()          
+        self.DTIs = DTIs   
+    
     def getDTIForAnlyses(self):
         DTIs = []
         repositoryMongo = RepositoryMongo()
