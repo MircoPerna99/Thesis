@@ -2,7 +2,7 @@ import pandas as pd
 import json
 import os
 import xml.etree.ElementTree as ET
-from configuration import Configuration
+from Services.configuration import Configuration
 from DataAccess.Model.DTI_Model import DTIModel
 from DataAccess.Model.PPI_Model import PPIModel
 

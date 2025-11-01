@@ -9,7 +9,7 @@ from pyspark.sql.functions import explode
 from pyspark.ml.feature import StringIndexer, IndexToString
 from pyspark.ml import Pipeline
 from pyspark.ml.tuning import CrossValidator, ParamGridBuilder
-from configuration import Configuration
+from Services.configuration import Configuration
 
 class ALSModel():
     def __init__(self, data):

@@ -7,7 +7,7 @@ from ML_Models.Dataset import Dataset
 from ML_Models.ALSModel import ALSModel
 from ML_Models.FMModel import FMModel
 from pyspark.sql import SparkSession
-from configuration import Configuration
+from Services.configuration import Configuration
 import random
 import json 
 

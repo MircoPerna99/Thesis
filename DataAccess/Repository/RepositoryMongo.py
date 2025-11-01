@@ -6,7 +6,7 @@ from pymongo import MongoClient
 from DataAccess.Model.PPI_Model import PPIModel
 from DataAccess.Model.DTI_Model import DTIModel
 import json
-from configuration import Configuration
+from Services.configuration import Configuration
 
 class RepositoryMongo():
     def __init__(self):

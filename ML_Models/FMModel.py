@@ -13,7 +13,7 @@ from pyspark.ml.functions import vector_to_array
 from pyspark.sql import functions as F
 from pyspark.ml.tuning import CrossValidator, ParamGridBuilder, CrossValidatorModel
 import pandas as pd
-from configuration import Configuration
+from Services.configuration import Configuration
 
 class FMModel():
     def __init__(self, data, sparkSession, DTI_fm = None, PPI_fm = None, isAlternative = False):

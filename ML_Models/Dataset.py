@@ -13,7 +13,7 @@ from pyspark.sql.functions import expr
 from pyspark.sql.functions import abs
 from pyspark.sql import functions as F
 from pyspark.sql.functions import first,asc, desc
-from configuration import Configuration
+from Services.configuration import Configuration
 
 class Dataset():
     def __init__(self, sparkSession):
