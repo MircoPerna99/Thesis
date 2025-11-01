@@ -1,3 +1,7 @@
+import sys
+import os
+
+sys.path.append(os.path.abspath("../"))
 from pymongo import MongoClient
 from DataAccess.Model.PPI_Model import PPIModel
 from DataAccess.Model.DTI_Model import DTIModel
