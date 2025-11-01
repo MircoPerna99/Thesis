@@ -18,23 +18,16 @@ from pyspark.sql import Row
 from pyspark.sql.functions import collect_list
 from pyspark.sql.functions import expr
 from pyspark.sql.functions import abs
-from ML_Models.ALSModel import ALSModel
-from ML_Models.FMModel import FMModel
 from pyspark.sql import functions as F
 from pyspark.sql.functions import first,asc, desc
 from configuration import Configuration
-import random
 
 class Dataset():
-    def __init__(self):
+    def __init__(self, sparkSession):
         self.config = Configuration()
         self.allProtein = self.config["takeAllProtein"]
         self.proteinsForTest = self.config["proteinsToAnalyse"]
-        self.spark = SparkSession.builder \
-                        .appName("Collaborative_Filtering")\
-                        .config("spark.driver.host", "localhost") \
-                        .config("spark.driver.bindAddress", "127.0.0.1") \
-                        .getOrCreate()
+        self.spark =  sparkSession
         
     def _takeDTI(self, query = None):
         repositoryMongo = RepositoryMongo()
@@ -48,7 +41,7 @@ class Dataset():
         repositoryMongo.close_connection()
         self.PPIs = PPIs
     
-    def takePPIForAnalyses(self):
+    def getPPIForAnalyses(self):
         PPIs = []
         repositoryMongo = RepositoryMongo()
         if(self.allProtein):
@@ -70,7 +63,7 @@ class Dataset():
         
         self.PPIs = PPIs
         
-    def takeDrugsForAnlyses(self):
+    def getDTIForAnlyses(self):
         DTIs = []
         repositoryMongo = RepositoryMongo()
 
@@ -116,7 +109,7 @@ class Dataset():
 
         return  self.spark.createDataFrame(rows)
     
-    def dataframeForTestALS(self):            
+    def getDTAmountInteractions(self):            
         dfDTI_sp = self._DTIToDataFrame()
         dfPPI_sp = self._PPIToDataFrame()
 
@@ -136,33 +129,24 @@ class Dataset():
         joinedDF= joinedDF.withColumnRenamed("proteinBId", "proteinId")
 
         return joinedDF
+    
+    def getDTInteractionsTable(self):
+        df_DTI = self._DTIToDataFrame()
+        df_DTI = df_DTI.orderBy("drugId").groupBy("drugId").pivot("proteinId").agg(F.lit(1)).fillna(0)
+        return df_DTI
+    
+    def getPPInteractionsTable(self, weight = False, noFilter = False):
+        
+        df_PPI = self._PPIToDataFrame(noFilter)
+        
+        if(weight):
+            df_PPI = df_PPI.orderBy(F.col('proteinBId').asc(), F.col('score').desc()).groupBy("proteinBId").pivot("proteinAId").agg(first("score")).fillna(0)
+        else:
+            df_PPI = df_PPI.orderBy('proteinBId').groupBy("proteinBId").pivot("proteinAId").agg(F.lit(1)).fillna(0)
 
+        df_PPI = df_PPI.withColumnRenamed("proteinBId", "proteinId")
+        return df_PPI
 
-dataset = Dataset()
-dataset.takePPIForAnalyses()
-dataset.takeDrugsForAnlyses()
-#dataset.toGraph()
-df = dataset.dataframeForTestALS()
-df.show()
-
-df_DTI = dataset._DTIToDataFrame()
-df_DTI = df_DTI.orderBy("drugId").groupBy("drugId").pivot("proteinId").agg(F.lit(1)).fillna(0)
-df_PPI = dataset._PPIToDataFrame(False)
-df_PPI_Weight = df_PPI.orderBy(F.col('proteinBId').asc(), F.col('score').desc()).groupBy("proteinBId").pivot("proteinAId").agg(first("score")).fillna(0)
-
-df_PPI = df_PPI.orderBy('proteinBId').groupBy("proteinBId").pivot("proteinAId").agg(F.lit(1)).fillna(0)
-
-df_PPI_Weight = df_PPI_Weight.withColumnRenamed("proteinBId", "proteinId")
-df_PPI = df_PPI.withColumnRenamed("proteinBId", "proteinId")
-# result = (df.orderBy("drugId").groupBy("drugId").pivot("proteinId").agg(first("amount_interactions")).fillna(0))
-
-# result.write.mode("overwrite").option("header", True).csv("interactions_DP")
-
-# modelAls = ALSModel(df)
-# modelFM = FMModel(df, False)
-
-#modelFM_Weight = FMModel(df,df_DTI, df_PPI, True)
-# modelFM_Weight.predictions.show()
 # for i in range(5):
 #     modelFM_Weight = FMModel(df,df_DTI, df_PPI, True)
 #     results.append(modelFM_Weight.data.columns)
@@ -174,14 +158,12 @@ df_PPI = df_PPI.withColumnRenamed("proteinBId", "proteinId")
 #             print(flag)
 
 
-seeds = random.sample(range(1, 101), 10)
-
 # modelFM_Weight = FMModel(df,df_DTI, df_PPI_Weight, True)
 # modelFM_No_Weight = FMModel(df,df_DTI, df_PPI, True)
 # modelFM_No_Weight.train()
 # modelFM_No_Weight.crossValidation()
-modelAls = ALSModel(df)
-modelAls.train()
+# modelAls = ALSModel(df)
+# modelAls.train()
 # modelAls.crossValidation()
 # resultsWeight = []
 # resultsNoWeight = []

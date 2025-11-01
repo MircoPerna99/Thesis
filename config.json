@@ -1,16 +1,22 @@
 {
     "connection_string_mongo": "mongodb://localhost:27017/",
-    "takeAllProtein" : false,
-    "proteinsToAnalyse" : ["O54824", "Q00403", "Q12933", "Q09472", "Q92793", "P67870","Q04206", "Q99728"],
+    "hyperpameters_ALS" : {
+        "regParams" : [0.1],
+        "ranks" : [35],
+        "alphas" : [10.0]
+    },
     "hyperpameters_FM" : {
         "regParams" : [0.1],
-        "maxIters" : [1000],
+        "maxIters" : [100],
         "initStds" : [0.1],
         "factorSizes" : [2,8,12]
     },
-    "hyperpameters_ALS" : {
-        "regParams" : [0.01, 0.1],
-        "ranks" : [25,30,35],
-        "alphas" : [10.0, 20.0, 40.0, 60.0, 80.0, 100.0]
-    }
+    "nameFileAmountInteractions": "interactions_DP",
+    "nameFileDTI": "DTI",
+    "nameFilePPI": "PPI",
+    "proteinsToAnalyse" : ["O54824", "Q00403", "Q12933", "Q09472", "Q92793", "P67870","Q04206", "Q99728"],
+    "PPIWeighted": false,
+    "PPIFiltered": false,
+    "showGraph": false,
+    "takeAllProtein" : false
 }

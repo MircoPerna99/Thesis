@@ -78,3 +78,8 @@ Chosen parameters: regParam: 0.1, rank:25, alpha:10.0, RMSE:0.8697872492728245
 0.8890113045186723
 
  Chosen parameters: regParam: 0.1, rank:35, alpha:10.0, RMSE:0.8679239741689826
+
+
+         //    "regParams" : [0.01, 0.1],
+        // "ranks" : [25,30,35],
+        // "alphas" : [10.0, 20.0, 40.0, 60.0, 80.0, 100.0]

@@ -16,14 +16,8 @@ import pandas as pd
 from configuration import Configuration
 
 class FMModel():
-    def __init__(self, data, DTI_fm = None, PPI_fm = None, isAlternative = False):
-        self.spark = SparkSession.builder \
-                            .appName("FMModel")\
-                            .config("spark.driver.host", "localhost") \
-                            .config("spark.driver.bindAddress", "127.0.0.1") \
-                            .getOrCreate()
-                            
-        self.spark.conf.set("spark.sql.debug.maxToStringFields", 100)
+    def __init__(self, data, sparkSession, DTI_fm = None, PPI_fm = None, isAlternative = False):
+        self.spark = sparkSession
         self.data = data
         self._config = Configuration()
         if(isAlternative):
@@ -193,4 +187,3 @@ class FMModel():
         cvModel = cv.fit(self.data)
         print("fine fit")
         print(cvModel.avgMetrics)
-
