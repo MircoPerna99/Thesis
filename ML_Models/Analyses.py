@@ -12,6 +12,11 @@ import random
 
 def saveDataframeOnCSV(df, nameFile):
     df.write.mode("overwrite").option("header", True).csv(nameFile)
+    
+def saveResultsOnFile(list, file_name):
+    with open(file_name, 'w') as f:
+        for item in list:
+            f.write(f"{item}\n")
 
 print("Initialization of config")
 config = Configuration()
@@ -98,7 +103,10 @@ for result in resultsFM:
 print("results FM alterntive")
 for result in resultsFMAlternative:
     print(result)
-    
 
+print("Save result on file")
+saveResultsOnFile(resultsFMAlternative, config['nameFileResultALS'])
+saveResultsOnFile(resultAls, config['nameFileResultFM'])
+print("Completed saving result on file")
 sparkSession.stop()
 
