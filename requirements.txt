@@ -1,0 +1,7 @@
+matplotlib
+numpy
+networkx
+scipy
+pymongo
+pandas
+pyspark

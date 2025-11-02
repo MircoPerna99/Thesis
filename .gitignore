@@ -476,3 +476,15 @@ ML_Models/interactions_DP/part-00000-1e277a15-9277-4e83-b6db-4fdce90612f2-c000.c
 ML_Models/PPI/.part-00000-1675f8d9-1a5a-47b8-9665-2a5717d38bae-c000.csv.crc
 ML_Models/PPI/part-00000-1675f8d9-1a5a-47b8-9665-2a5717d38bae-c000.csv
 ML_Models/als_result_seed.txt
+DTI/_SUCCESS
+DTI/._SUCCESS.crc
+DTI/.part-00000-3249cdac-4c44-4713-8721-6d45ed15a3f8-c000.csv.crc
+DTI/part-00000-3249cdac-4c44-4713-8721-6d45ed15a3f8-c000.csv
+interactions_DP/_SUCCESS
+interactions_DP/._SUCCESS.crc
+interactions_DP/.part-00000-e64e0018-353b-4ae4-a0fe-f0a987e2b296-c000.csv.crc
+interactions_DP/part-00000-e64e0018-353b-4ae4-a0fe-f0a987e2b296-c000.csv
+PPI/_SUCCESS
+PPI/._SUCCESS.crc
+PPI/.part-00000-0fc8763e-93db-4a59-a609-5fe83c67fb3f-c000.csv.crc
+PPI/part-00000-0fc8763e-93db-4a59-a609-5fe83c67fb3f-c000.csv
