@@ -1,5 +1,5 @@
 {
-    "amountOfSeed":1,
+    "amountOfSeed":5,
     "connection_string_mongo": "mongodb://localhost:27017/",
     "hyperpameters_ALS" : {
         "regParams" : [0.01, 0.1],

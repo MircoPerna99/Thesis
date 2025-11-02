@@ -67,6 +67,7 @@ class FMModel():
         
         self.data = assembler.transform(self.data)
         self.data = self.data.select("proteinId_int", "drugId_int","features" ,"amount_interactions")
+        self.data.show(2)
         
     def createMatrixAlternative(self, DTI_fm, PPI_fm):
         df_drugs_ps = self._createOneHotCodeDF(True)
@@ -130,8 +131,9 @@ class FMModel():
                 for initStd in initStds:
                     for factorSize in factorSizes:
                         fm = FMRegressor(featuresCol='features', labelCol='amount_interactions', maxIter=maxIter, initStd = initStd, factorSize=factorSize, regParam = regParam)
-                        
+                        print("training")
                         fm_model = fm.fit(training)
+                        print("transform")
                         predictions = fm_model.transform(test)
                         evaluator = RegressionEvaluator(metricName = "rmse", labelCol = "amount_interactions", predictionCol = "prediction")
                         rmse = evaluator.evaluate(predictions)
