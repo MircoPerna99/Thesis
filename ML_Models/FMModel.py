@@ -13,6 +13,7 @@ from pyspark.ml.functions import vector_to_array
 from pyspark.sql import functions as F
 from pyspark.ml.tuning import CrossValidator, ParamGridBuilder, CrossValidatorModel
 import pandas as pd
+import numpy as np
 from Services.configuration import Configuration
 
 class FMModel():
@@ -172,15 +173,20 @@ class FMModel():
     #     return df_table
     
     def crossValidation(self):
-        self.aus_regParam = 0.1
-        self.aus_maxIter = 100
-        self.aus_initStd = 0.1
-        self.aus_factorSize = 2
-        fm = FMRegressor(featuresCol='features', labelCol='amount_interactions', maxIter=1000, initStd = 0.1, factorSize=2, regParam = 0.1)
-        grid = ParamGridBuilder().build()
+        fm = FMRegressor(featuresCol='features', labelCol='amount_interactions')
+        grid = ParamGridBuilder()\
+                .addGrid(fm.regParam, self._config['hyperpameters_FM']['regParams'])\
+                .addGrid(fm.maxIter, self._config['hyperpameters_FM']['maxIters'])\
+                .addGrid(fm.initStd, self._config['hyperpameters_FM']['initStds'])\
+                .addGrid(fm.factorSize, self._config['hyperpameters_FM']['factorSizes'] )\
+                .build()
         
         evaluator = RegressionEvaluator(metricName = "rmse", labelCol = "amount_interactions", predictionCol = "prediction")
         
         cv = CrossValidator(estimator=fm, estimatorParamMaps=grid, evaluator=evaluator,parallelism=2, numFolds=5)
         cvModel = cv.fit(self.data)
-        print(cvModel.avgMetrics)
+        
+        index_best = np.argmin(cvModel.avgMetrics)
+        map_hyper = cvModel.getEstimatorParamMaps()                       
+        print("The best rmse is:{0}".format(cvModel.avgMetrics[index_best]))
+        print("The best hyperparameters are:{0}".format(map_hyper[index_best]))

@@ -1,3 +1,4 @@
 from ML_Models.Analyses import applyAnlyses
-
-applyAnlyses()
+from ML_Models.Analyses import applyCrossValidation
+# applyAnlyses()
+applyCrossValidation()

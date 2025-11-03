@@ -9,6 +9,7 @@ from pyspark.sql.functions import explode
 from pyspark.ml.feature import StringIndexer, IndexToString
 from pyspark.ml import Pipeline
 from pyspark.ml.tuning import CrossValidator, ParamGridBuilder
+import numpy as np
 from Services.configuration import Configuration
 
 class ALSModel():
@@ -73,13 +74,19 @@ class ALSModel():
             self.from_index_to_name(proteins_recommended)
     
     def crossValidation(self):
-        print("Inizio")
-        aus_als = ALS(maxIter = 10, regParam = 0.1, rank = 35, alpha = 10, userCol = "ID_Drug_Index",
+        aus_als = ALS(maxIter = 10, userCol = "ID_Drug_Index",
                                   itemCol = "ID_Protein_Index", ratingCol = "amount_interactions",coldStartStrategy = "drop")       
-        grid = ParamGridBuilder().build()
+        grid = ParamGridBuilder()\
+                .addGrid(aus_als.regParam, self._confing['hyperpameters_ALS']['regParams'])\
+                .addGrid(aus_als.rank, self._confing['hyperpameters_ALS']['ranks'])\
+                .addGrid(aus_als.alpha, self._confing['hyperpameters_ALS']['alphas'])\
+                .build()
         
         evaluator = RegressionEvaluator(metricName = "rmse", labelCol = "amount_interactions", predictionCol = "prediction")
         
         cv = CrossValidator(estimator=aus_als, estimatorParamMaps=grid, evaluator=evaluator,parallelism=2, numFolds=5)
         cvModel = cv.fit(self.data)
-        print(cvModel.avgMetrics)
+        index_best = np.argmin(cvModel.avgMetrics)
+        map_hyper = cvModel.getEstimatorParamMaps()                       
+        print("The best rmse is:{0}".format(cvModel.avgMetrics[index_best]))
+        print("The best hyperparameters are:{0}".format(map_hyper[index_best]))

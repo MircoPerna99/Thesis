@@ -116,3 +116,79 @@ def applyAnlyses():
     print("Completed saving result on file")
     sparkSession.stop()
 
+
+def applyCrossValidation():
+    print("Initialization of config")
+    config = Configuration()
+    print("Initialization of config completed")
+    print("Open spark session")
+    sparkSession = SparkSession.builder \
+                            .appName("Cross_validation")\
+                            .config("spark.driver.host", "localhost") \
+                            .config("spark.ui.showConsoleProgress", "false") \
+                            .config("spark.driver.bindAddress", "127.0.0.1") \
+                            .config("spark.driver.memory", "32g") \
+                            .getOrCreate()
+                            
+    sparkSession.sparkContext.setLogLevel("ERROR")
+    sparkSession.conf.set("spark.sql.debug.maxToStringFields", 10000)
+    print("Starting initialization dataset")
+    dataset = Dataset(sparkSession)
+    print("Finished initialization dataset")
+    print("Started to get PPI")
+    dataset.getPPIForAnalysesTemp()
+    print("Amount PPI:{0}".format(len(dataset.PPIs)))
+    print("Finished to get PPI\nStarted to get DTI")
+    dataset.getDTIForAnlysesTemp()
+    print("Amount DTI:{0}".format(len(dataset.DTIs)))
+    print("Finished to get DTI")
+
+    if(config['showGraph']):
+        dataset.toGraph()
+
+    print("Started elaboration amount interactions")
+    df = dataset.getDTAmountInteractions()
+    print("Completed elaboration amount interactions")
+
+    print("Save amount interactions on file")
+    result = (df.orderBy("drugId").groupBy("drugId").pivot("proteinId").agg(F.first("amount_interactions")).fillna(0))
+    saveDataframeOnCSV(result, config['nameFileAmountInteractions']+"cv")
+    print("Saving completed")
+
+    print("Save DTI on file")
+    df_DTI = dataset.getDTInteractionsTable()
+    saveDataframeOnCSV(df_DTI, config['nameFileDTI']+"cv")
+    print("Saving completed")
+
+    print("Save PPI on file")
+    df_PPI = dataset.getPPInteractionsTable(weight=config['PPIWeighted'], noFilter=config['PPIFiltered'])
+    saveDataframeOnCSV(df_PPI, config['nameFilePPI']+"cv")
+    print("Saving completed")
+
+    print("Started initialization ALS model")
+    modelAls = ALSModel(df)
+    print("Completed initialization ALS model")
+
+
+    print("Started initialization FM model with same dataframe of ALS model")
+    modelFM = FMModel(df, sparkSession)
+    print("Completed initialization FM model with same dataframe of ALS model")
+
+    print("Started initialization FM model alternative")
+    modelFM_Alternative = FMModel(df,sparkSession ,df_DTI, df_PPI, True)
+    print("Completed initialization FM model alternative")
+
+    print("Start cross validation ALS")
+    modelAls.crossValidation()
+    print("Finish cross validation ALS")
+
+    print("Start cross validation FM")
+    modelFM.crossValidation()
+    print("Finish cross validation FM")
+
+    print("Start cross validation FM alternative")
+    modelFM_Alternative.crossValidation()
+    print("Finish cross validation FM alternative")
+
+    sparkSession.stop()
+
