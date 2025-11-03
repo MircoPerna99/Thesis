@@ -12,10 +12,10 @@ import random
 import json 
 
 def saveDataframeOnCSV(df, nameFile):
-    df.write.mode("overwrite").option("header", True).csv(nameFile)
-    
+    df.write.mode("overwrite").option("header", True).csv("ML_Models/"+nameFile)
+
 def saveResultsOnFile(list, file_name):
-    with open(file_name, 'w') as f:
+    with open("ML_Models/"+file_name, 'w') as f:
         for item in list:
             f.write(f"{item}\n")
 def applyAnlyses():
@@ -28,6 +28,7 @@ def applyAnlyses():
                             .config("spark.driver.host", "localhost") \
                             .config("spark.ui.showConsoleProgress", "false") \
                             .config("spark.driver.bindAddress", "127.0.0.1") \
+                            .config("spark.driver.memory", "16g") \
                             .getOrCreate()
                             
     sparkSession.sparkContext.setLogLevel("ERROR")

@@ -81,7 +81,5 @@ class ALSModel():
         evaluator = RegressionEvaluator(metricName = "rmse", labelCol = "amount_interactions", predictionCol = "prediction")
         
         cv = CrossValidator(estimator=aus_als, estimatorParamMaps=grid, evaluator=evaluator,parallelism=2, numFolds=5)
-        print("Inizio fit")
         cvModel = cv.fit(self.data)
-        print("fine fit")
         print(cvModel.avgMetrics)

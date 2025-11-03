@@ -131,9 +131,7 @@ class FMModel():
                 for initStd in initStds:
                     for factorSize in factorSizes:
                         fm = FMRegressor(featuresCol='features', labelCol='amount_interactions', maxIter=maxIter, initStd = initStd, factorSize=factorSize, regParam = regParam)
-                        print("training")
                         fm_model = fm.fit(training)
-                        print("transform")
                         predictions = fm_model.transform(test)
                         evaluator = RegressionEvaluator(metricName = "rmse", labelCol = "amount_interactions", predictionCol = "prediction")
                         rmse = evaluator.evaluate(predictions)
@@ -178,14 +176,11 @@ class FMModel():
         self.aus_maxIter = 100
         self.aus_initStd = 0.1
         self.aus_factorSize = 2
-        print("Inizio")
         fm = FMRegressor(featuresCol='features', labelCol='amount_interactions', maxIter=1000, initStd = 0.1, factorSize=2, regParam = 0.1)
         grid = ParamGridBuilder().build()
         
         evaluator = RegressionEvaluator(metricName = "rmse", labelCol = "amount_interactions", predictionCol = "prediction")
         
         cv = CrossValidator(estimator=fm, estimatorParamMaps=grid, evaluator=evaluator,parallelism=2, numFolds=5)
-        print("Inizio fit")
         cvModel = cv.fit(self.data)
-        print("fine fit")
         print(cvModel.avgMetrics)
