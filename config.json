@@ -7,10 +7,10 @@
         "alphas" : [10.0, 20.0, 40.0, 60.0, 80.0, 100.0]
     },
     "hyperpameters_FM" : {
-        "regParams" : [0.1,0.01],
-        "maxIters" : [100,1000],
+        "regParams" : [0.01],
+        "maxIters" : [1000],
         "initStds" : [0.1],
-        "factorSizes" : [2,8,12]
+        "factorSizes" : [2]
     },
     "nameFileAmountInteractions": "interactions_DP",
     "nameFileDTI": "DTI",

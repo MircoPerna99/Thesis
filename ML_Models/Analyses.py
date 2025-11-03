@@ -182,9 +182,9 @@ def applyCrossValidation():
     modelAls.crossValidation()
     print("Finish cross validation ALS")
 
-    print("Start cross validation FM")
-    modelFM.crossValidation()
-    print("Finish cross validation FM")
+    # print("Start cross validation FM")
+    # modelFM.crossValidation()
+    # print("Finish cross validation FM")
 
     print("Start cross validation FM alternative")
     modelFM_Alternative.crossValidation()
