@@ -180,9 +180,9 @@ def applyCrossValidation():
 
     resultAls = []
     resultsFMAlternative = []
-    # print("Start cross validation ALS")
-    # modelAls.crossValidation()
-    # print("Finish cross validation ALS")
+    print("Start cross validation ALS")
+    modelAls.crossValidation()
+    print("Finish cross validation ALS")
 
     # print("Start cross validation FM")
     # modelFM.crossValidation()

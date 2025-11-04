@@ -2,9 +2,9 @@
     "amountOfSeed":5,
     "connection_string_mongo": "mongodb://localhost:27017/",
     "hyperpameters_ALS" : {
-        "regParams" : [0.01, 0.1],
-        "ranks" : [25,30,35],
-        "alphas" : [10.0, 20.0, 40.0, 60.0, 80.0, 100.0]
+        "regParams" : [0.1],
+        "ranks" : [30],
+        "alphas" : [10.0]
     },
     "hyperpameters_FM" : {
         "regParams" : [0.01],
