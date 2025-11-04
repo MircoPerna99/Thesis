@@ -170,14 +170,16 @@ def applyCrossValidation():
     print("Completed initialization ALS model")
 
 
-    print("Started initialization FM model with same dataframe of ALS model")
+    print("Started initialization FM model with same dataframe of FM model")
     modelFM = FMModel(df, sparkSession)
-    print("Completed initialization FM model with same dataframe of ALS model")
+    print("Completed initialization FM model with same dataframe of FM model")
 
     print("Started initialization FM model alternative")
     modelFM_Alternative = FMModel(df,sparkSession ,df_DTI, df_PPI, True)
     print("Completed initialization FM model alternative")
 
+    resultAls = []
+    resultsFMAlternative = []
     print("Start cross validation ALS")
     modelAls.crossValidation()
     print("Finish cross validation ALS")
@@ -188,7 +190,12 @@ def applyCrossValidation():
 
     print("Start cross validation FM alternative")
     modelFM_Alternative.crossValidation()
+    resultsFMAlternative.append(modelFM_Alternative.bestMetrics)
+    resultsFMAlternative.append(modelFM_Alternative.bestHyper)
     print("Finish cross validation FM alternative")
+    print("Save result on file")
+    saveResultsOnFile(resultsFMAlternative, "result_cross.txt")
+    print("Completed saving result on file")
 
     sparkSession.stop()
 

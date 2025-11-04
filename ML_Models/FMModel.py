@@ -85,8 +85,8 @@ class FMModel():
         
         df_table = df_inter.join(DTI_fm, DTI_fm.drugId == df_inter.drugId_int)
         df_table = df_table.join(PPI_fm, PPI_fm.proteinId == df_inter.proteinId_int)
-        df_table = df_table.join(df_drugs_ps, df_table.drugId_int == df_drugs_ps.drugId_one_hot)
-        df_table = df_table.join(df_target_ps, df_table.proteinId_int == df_target_ps.proteinId_one_hot)
+        # df_table = df_table.join(df_drugs_ps, df_table.drugId_int == df_drugs_ps.drugId_one_hot)
+        # df_table = df_table.join(df_target_ps, df_table.proteinId_int == df_target_ps.proteinId_one_hot)
         self.data = df_table.orderBy("drugId_int", "proteinId_int")
         self._clean_data()
         self._createFinalDataSet()
@@ -188,5 +188,7 @@ class FMModel():
         
         index_best = np.argmin(cvModel.avgMetrics)
         map_hyper = cvModel.getEstimatorParamMaps()                       
-        print("The best rmse is:{0}".format(cvModel.avgMetrics[index_best]))
-        print("The best hyperparameters are:{0}".format(map_hyper[index_best]))
+        self.bestMetrics = "The best rmse is:{0}".format(cvModel.avgMetrics[index_best])
+        self.bestHyper = "The best hyperparameters are:{0}".format(map_hyper[index_best])
+        print(self.bestMetrics)
+        print(self.bestHyper)

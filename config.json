@@ -10,7 +10,7 @@
         "regParams" : [0.1,0.01],
         "maxIters" : [100,200,300,400,500],
         "initStds" : [0.1],
-        "factorSizes" : [2,3,4,5,6,7,8,9,10,11,12]
+        "factorSizes" : [2,8,12]
     },
     "nameFileAmountInteractions": "interactions_DP",
     "nameFileDTI": "DTI",
