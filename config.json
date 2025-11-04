@@ -7,10 +7,10 @@
         "alphas" : [10.0, 20.0, 40.0, 60.0, 80.0, 100.0]
     },
     "hyperpameters_FM" : {
-        "regParams" : [0.1,0.01],
-        "maxIters" : [100,200,300,400,500],
+        "regParams" : [0.01],
+        "maxIters" : [500],
         "initStds" : [0.1],
-        "factorSizes" : [2,8,12]
+        "factorSizes" : [2]
     },
     "nameFileAmountInteractions": "interactions_DP",
     "nameFileDTI": "DTI",
@@ -19,7 +19,7 @@
     "nameFileResultFM": "fm_result_seed.txt",
     "proteinsToAnalyse" : ["O54824", "Q00403", "Q12933", "Q09472", "Q92793", "P67870","Q04206", "Q99728"],
     "PPIWeighted": false,
-    "PPIFiltered": false,
+    "PPINotFiltered": true,
     "showGraph": false,
     "takeAllProtein" : true,
     "takeDataFromFile" : true

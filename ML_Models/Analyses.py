@@ -62,7 +62,7 @@ def applyAnlyses():
     print("Saving completed")
 
     print("Save PPI on file")
-    df_PPI = dataset.getPPInteractionsTable(weight=config['PPIWeighted'], noFilter=config['PPIFiltered'])
+    df_PPI = dataset.getPPInteractionsTable(weight=config['PPIWeighted'], noFilter=config['PPINotFiltered'])
     saveDataframeOnCSV(df_PPI, config['nameFilePPI'])
     print("Saving completed")
 
@@ -86,12 +86,12 @@ def applyAnlyses():
     resultsFMAlternative = []
 
     for seed in seeds:
-        print("Analyses for seed:{0}".format(seed))
-        modelAls.train(seed)
-        resultAls.append("Chosen parameters for seed{4}: regParam: {0}, rank:{1}, alpha:{2}, RMSE:{3}".format(modelAls.aus_regParam, modelAls.aus_rank, modelAls.aus_alpha, modelAls.aus_rmse,seed))  
+        # print("Analyses for seed:{0}".format(seed))
+        # modelAls.train(seed)
+        # resultAls.append("Chosen parameters for seed{4}: regParam: {0}, rank:{1}, alpha:{2}, RMSE:{3}".format(modelAls.aus_regParam, modelAls.aus_rank, modelAls.aus_alpha, modelAls.aus_rmse,seed))  
         
-        modelFM.train(seed)
-        resultsFM.append("Chosen parameters for FM and for seed {5}: regParam: {0}, maxIter:{1}, initStd:{2},factorSize:{3}, RMSE:{4}".format(modelFM.aus_regParam, modelFM.aus_maxIter, modelFM.aus_initStd,modelFM.aus_factorSize, modelFM.aus_rmse,seed))
+        # modelFM.train(seed)
+        # resultsFM.append("Chosen parameters for FM and for seed {5}: regParam: {0}, maxIter:{1}, initStd:{2},factorSize:{3}, RMSE:{4}".format(modelFM.aus_regParam, modelFM.aus_maxIter, modelFM.aus_initStd,modelFM.aus_factorSize, modelFM.aus_rmse,seed))
 
         modelFM_Alternative.train(seed)
         resultsFMAlternative.append("Chosen parameters for FM alternartive{5}: regParam: {0}, maxIter:{1}, initStd:{2},factorSize:{3}, RMSE:{4}".format(modelFM_Alternative.aus_regParam, modelFM_Alternative.aus_maxIter, modelFM_Alternative.aus_initStd,modelFM_Alternative.aus_factorSize, modelFM_Alternative.aus_rmse,seed))
@@ -161,7 +161,7 @@ def applyCrossValidation():
     print("Saving completed")
 
     print("Save PPI on file")
-    df_PPI = dataset.getPPInteractionsTable(weight=config['PPIWeighted'], noFilter=config['PPIFiltered'])
+    df_PPI = dataset.getPPInteractionsTable(weight=config['PPIWeighted'], noFilter=config['PPINotFiltered'])
     saveDataframeOnCSV(df_PPI, config['nameFilePPI']+"cv")
     print("Saving completed")
 
@@ -180,9 +180,9 @@ def applyCrossValidation():
 
     resultAls = []
     resultsFMAlternative = []
-    print("Start cross validation ALS")
-    modelAls.crossValidation()
-    print("Finish cross validation ALS")
+    # print("Start cross validation ALS")
+    # modelAls.crossValidation()
+    # print("Finish cross validation ALS")
 
     # print("Start cross validation FM")
     # modelFM.crossValidation()
