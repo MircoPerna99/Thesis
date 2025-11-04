@@ -8,7 +8,7 @@
     },
     "hyperpameters_FM" : {
         "regParams" : [0.01],
-        "maxIters" : [500,600],
+        "maxIters" : [500],
         "initStds" : [0.1],
         "factorSizes" : [2]
     },
