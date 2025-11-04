@@ -185,13 +185,11 @@ class FMModel():
         
         cv = CrossValidator(estimator=fm, estimatorParamMaps=grid, evaluator=evaluator,parallelism=2, numFolds=5)
         cvModel = cv.fit(self.data)
-        
+                              
         index_best = np.argmin(cvModel.avgMetrics)
         map_hyper = cvModel.getEstimatorParamMaps()                       
-        self.bestMetrics = "The best rmse is:{0}".format(cvModel.avgMetrics[index_best])
-        self.bestHyper = "The best hyperparameters are:{0}".format(map_hyper[index_best])
-        print(self.bestMetrics)
-        print(self.bestHyper)
+        print("The best rmse is:{0}".format(cvModel.avgMetrics[index_best]))
+        print("The best hyperparameters are:{0}".format(map_hyper[index_best]))
         return cvModel.avgMetrics[index_best]
         
     def avgCrossvalidation(self):
@@ -200,4 +198,4 @@ class FMModel():
             result = self.crossValidation()
             avgMetrics.append(result)
         
-        print("The average rmse result of 10 CV is:{0}".format(np.mean(avgMetrics)))
+        return avgMetrics

@@ -98,4 +98,4 @@ class ALSModel():
             result = self.crossValidation()
             avgMetrics.append(result)
         
-        print("The average rmse result of 10 CV is:{0}".format(np.mean(avgMetrics)))
+        return avgMetrics

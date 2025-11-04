@@ -10,6 +10,8 @@ from pyspark.sql import SparkSession
 from Services.configuration import Configuration
 import random
 import json 
+import numpy as np
+
 
 def saveDataframeOnCSV(df, nameFile):
     df.write.mode("overwrite").option("header", True).csv("ML_Models/"+nameFile)
@@ -181,21 +183,26 @@ def applyCrossValidation():
     resultAls = []
     resultsFMAlternative = []
     # print("Start cross validation ALS")
-    # modelAls.avgCrossvalidation()
+    # resultAls = modelAls.avgCrossvalidation()
+    # avg = np.mean(resultAls)
+    # resultAls.append("The mean is:{0}".format(avg))
     # print("Finish cross validation ALS")
+    # print("Save result on file")
+    # saveResultsOnFile(resultAls, "result_cross_als.txt")
+    # print("Completed saving result on file")
 
     # print("Start cross validation FM")
     # modelFM.crossValidation()
     # print("Finish cross validation FM")
 
     print("Start cross validation FM alternative")
-    modelFM_Alternative.avgCrossvalidation()
-    # resultsFMAlternative.append(modelFM_Alternative.bestMetrics)
-    # resultsFMAlternative.append(modelFM_Alternative.bestHyper)
+    resultsFMAlternative = modelFM_Alternative.avgCrossvalidation()
+    avg = np.mean(resultsFMAlternative)
+    resultsFMAlternative.append(avg)
     print("Finish cross validation FM alternative")
-    # print("Save result on file")
-    # saveResultsOnFile(resultsFMAlternative, "result_cross.txt")
-    # print("Completed saving result on file")
+    print("Save result on file")
+    saveResultsOnFile(resultsFMAlternative, "result_cross_fm.txt")
+    print("Completed saving result on file")
 
     sparkSession.stop()
 
