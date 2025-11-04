@@ -8,7 +8,7 @@
     },
     "hyperpameters_FM" : {
         "regParams" : [0.01],
-        "maxIters" : [500],
+        "maxIters" : [500,600],
         "initStds" : [0.1],
         "factorSizes" : [2]
     },
@@ -19,7 +19,7 @@
     "nameFileResultFM": "fm_result_seed.txt",
     "proteinsToAnalyse" : ["O54824", "Q00403", "Q12933", "Q09472", "Q92793", "P67870","Q04206", "Q99728"],
     "PPIWeighted": false,
-    "PPINotFiltered": true,
+    "PPINotFiltered": false,
     "showGraph": false,
     "takeAllProtein" : true,
     "takeDataFromFile" : true
