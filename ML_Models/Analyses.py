@@ -180,22 +180,22 @@ def applyCrossValidation():
 
     resultAls = []
     resultsFMAlternative = []
-    print("Start cross validation ALS")
-    modelAls.crossValidation()
-    print("Finish cross validation ALS")
+    # print("Start cross validation ALS")
+    # modelAls.avgCrossvalidation()
+    # print("Finish cross validation ALS")
 
     # print("Start cross validation FM")
     # modelFM.crossValidation()
     # print("Finish cross validation FM")
 
     print("Start cross validation FM alternative")
-    modelFM_Alternative.crossValidation()
-    resultsFMAlternative.append(modelFM_Alternative.bestMetrics)
-    resultsFMAlternative.append(modelFM_Alternative.bestHyper)
+    modelFM_Alternative.avgCrossvalidation()
+    # resultsFMAlternative.append(modelFM_Alternative.bestMetrics)
+    # resultsFMAlternative.append(modelFM_Alternative.bestHyper)
     print("Finish cross validation FM alternative")
-    print("Save result on file")
-    saveResultsOnFile(resultsFMAlternative, "result_cross.txt")
-    print("Completed saving result on file")
+    # print("Save result on file")
+    # saveResultsOnFile(resultsFMAlternative, "result_cross.txt")
+    # print("Completed saving result on file")
 
     sparkSession.stop()
 

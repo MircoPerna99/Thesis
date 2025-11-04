@@ -74,7 +74,7 @@ class ALSModel():
             self.from_index_to_name(proteins_recommended)
     
     def crossValidation(self):
-        aus_als = ALS(maxIter = 20, userCol = "ID_Drug_Index",
+        aus_als = ALS(maxIter = 30, userCol = "ID_Drug_Index",
                                   itemCol = "ID_Protein_Index", ratingCol = "amount_interactions",coldStartStrategy = "drop")       
         grid = ParamGridBuilder()\
                 .addGrid(aus_als.regParam, self._confing['hyperpameters_ALS']['regParams'])\
@@ -90,3 +90,12 @@ class ALSModel():
         map_hyper = cvModel.getEstimatorParamMaps()                       
         print("The best rmse is:{0}".format(cvModel.avgMetrics[index_best]))
         print("The best hyperparameters are:{0}".format(map_hyper[index_best]))
+        return cvModel.avgMetrics[index_best]
+        
+    def avgCrossvalidation(self):
+        avgMetrics = []
+        for i in range(10):
+            result = self.crossValidation()
+            avgMetrics.append(result)
+        
+        print("The average rmse result of 10 CV is:{0}".format(np.mean(avgMetrics)))

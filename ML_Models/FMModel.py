@@ -192,3 +192,12 @@ class FMModel():
         self.bestHyper = "The best hyperparameters are:{0}".format(map_hyper[index_best])
         print(self.bestMetrics)
         print(self.bestHyper)
+        return self.bestMetrics
+        
+    def avgCrossvalidation(self):
+        avgMetrics = []
+        for i in range(10):
+            result = self.crossValidation()
+            avgMetrics.append(result)
+        
+        print("The average rmse result of 10 CV is:{0}".format(np.mean(avgMetrics)))
