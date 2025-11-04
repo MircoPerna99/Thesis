@@ -89,7 +89,9 @@ class FMModel():
         # df_table = df_table.join(df_target_ps, df_table.proteinId_int == df_target_ps.proteinId_one_hot)
         self.data = df_table.orderBy("drugId_int", "proteinId_int")
         self._clean_data()
+        self.data.write.mode("overwrite").option("header", True).csv("ML_Models/dati_dataset_training")
         self._createFinalDataSet()
+
     
     def createMatrix(self):
         df_drugs_ps = self._createOneHotCodeDF(True)
@@ -173,7 +175,9 @@ class FMModel():
     #     return df_table
     
     def crossValidation(self):
-        fm = FMRegressor(featuresCol='features', labelCol='amount_interactions')
+        seed = np.random.randint(0, 1e9)
+        print(seed)
+        fm = FMRegressor(featuresCol='features', labelCol='amount_interactions',seed=seed)
         grid = ParamGridBuilder()\
                 .addGrid(fm.regParam, self._config['hyperpameters_FM']['regParams'])\
                 .addGrid(fm.maxIter, self._config['hyperpameters_FM']['maxIters'])\
