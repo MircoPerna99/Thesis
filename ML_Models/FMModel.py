@@ -192,7 +192,7 @@ class FMModel():
         self.bestHyper = "The best hyperparameters are:{0}".format(map_hyper[index_best])
         print(self.bestMetrics)
         print(self.bestHyper)
-        return self.bestMetrics
+        return cvModel.avgMetrics[index_best]
         
     def avgCrossvalidation(self):
         avgMetrics = []
