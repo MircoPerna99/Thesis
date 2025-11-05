@@ -186,7 +186,7 @@ class FMModel():
         
         evaluator = RegressionEvaluator(metricName = "rmse", labelCol = "amount_interactions", predictionCol = "prediction")
         
-        cv = CrossValidator(estimator=fm, estimatorParamMaps=grid, evaluator=evaluator,parallelism=4, numFolds=5)
+        cv = CrossValidator(estimator=fm, estimatorParamMaps=grid, evaluator=evaluator,parallelism=6, numFolds=5)
         if(data == None):
             self.cvModel = cv.fit(self.data)
         else:
