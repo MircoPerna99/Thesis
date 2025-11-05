@@ -89,7 +89,7 @@ class FMModel():
         # df_table = df_table.join(df_target_ps, df_table.proteinId_int == df_target_ps.proteinId_one_hot)
         self.data = df_table.orderBy("drugId_int", "proteinId_int")
         self._clean_data()
-        self.data.write.mode("overwrite").option("header", True).csv("ML_Models/dati_dataset_training")
+        self.data.show(1)
         self._createFinalDataSet()
 
     
