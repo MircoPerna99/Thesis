@@ -138,10 +138,10 @@ def applyCrossValidation():
     dataset = Dataset(sparkSession)
     print("Finished initialization dataset")
     print("Started to get PPI")
-    dataset.getPPIForAnalyses()
+    dataset.getPPIForAnalysesTemp()
     print("Amount PPI:{0}".format(len(dataset.PPIs)))
     print("Finished to get PPI\nStarted to get DTI")
-    dataset.getDTIForAnlyses()
+    dataset.getDTIForAnlysesTemp()
     print("Amount DTI:{0}".format(len(dataset.DTIs)))
     print("Finished to get DTI")
 
