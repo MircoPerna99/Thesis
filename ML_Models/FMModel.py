@@ -177,7 +177,7 @@ class FMModel():
     def crossValidation(self):
         seed = np.random.randint(0, 1e9)
         print(seed)
-        fm = FMRegressor(featuresCol='features', labelCol='amount_interactions',seed=seed)
+        fm = FMRegressor(featuresCol='features', labelCol='amount_interactions')
         grid = ParamGridBuilder()\
                 .addGrid(fm.regParam, self._config['hyperpameters_FM']['regParams'])\
                 .addGrid(fm.maxIter, self._config['hyperpameters_FM']['maxIters'])\
