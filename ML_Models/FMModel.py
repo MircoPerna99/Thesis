@@ -174,9 +174,9 @@ class FMModel():
     #     # df_table.show()
     #     return df_table
     
-    def crossValidation(self):
-        seed = np.random.randint(0, 1e9)
-        print(seed)
+    def crossValidation(self, data = None):
+        # seed = np.random.randint(0, 1e9)
+        # print(seed)
         fm = FMRegressor(featuresCol='features', labelCol='amount_interactions')
         grid = ParamGridBuilder()\
                 .addGrid(fm.regParam, self._config['hyperpameters_FM']['regParams'])\
@@ -188,13 +188,16 @@ class FMModel():
         evaluator = RegressionEvaluator(metricName = "rmse", labelCol = "amount_interactions", predictionCol = "prediction")
         
         cv = CrossValidator(estimator=fm, estimatorParamMaps=grid, evaluator=evaluator,parallelism=2, numFolds=5)
-        cvModel = cv.fit(self.data)
-                              
-        index_best = np.argmin(cvModel.avgMetrics)
-        map_hyper = cvModel.getEstimatorParamMaps()                       
-        print("The best rmse is:{0}".format(cvModel.avgMetrics[index_best]))
+        if(data == None):
+            self.cvModel = cv.fit(self.data)
+        else:
+            self.cvModel = cv.fit(data)    
+                         
+        index_best = np.argmin(self.cvModel.avgMetrics)
+        map_hyper = self.cvModel.getEstimatorParamMaps()                       
+        print("The best rmse is:{0}".format(self.cvModel.avgMetrics[index_best]))
         print("The best hyperparameters are:{0}".format(map_hyper[index_best]))
-        return cvModel.avgMetrics[index_best]
+        return self.cvModel.avgMetrics[index_best]
         
     def avgCrossvalidation(self):
         avgMetrics = []

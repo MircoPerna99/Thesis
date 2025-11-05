@@ -14,6 +14,8 @@
     },
     "nameFileAmountInteractions": "interactions_DP",
     "nameFileDTI": "DTI",
+    "nameFilePredictionsALS": "PredictionsALS",
+    "nameFilePredictionsFMAlternative": "PredictionsFMAlternative",
     "nameFilePPI": "PPI",
     "nameFileResultALS": "als_result_seed.txt",
     "nameFileResultFM": "fm_result_seed.txt",
@@ -21,6 +23,6 @@
     "PPIWeighted": false,
     "PPINotFiltered": false,
     "showGraph": false,
-    "takeAllProtein" : true,
+    "takeAllProtein" : false,
     "takeDataFromFile" : true
 }
