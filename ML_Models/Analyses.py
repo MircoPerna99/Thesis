@@ -213,6 +213,7 @@ def applyCrossValidation():
     print("Start predictions")
     predictions = modelFM_Alternative.cvModel.transform(test)
     predictions.show()
+    predictions = predictions.select("proteinId_int","drugId_int", "amount_interactions", "prediction")
     print("Save result on file")
     saveDataframeOnCSV(predictions, config['nameFilePredictionsFMAlternative'])
     print("Completed result on file")
