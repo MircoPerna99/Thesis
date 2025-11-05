@@ -92,8 +92,8 @@ def applyAnlyses():
         # modelAls.train(seed)
         # resultAls.append("Chosen parameters for seed{4}: regParam: {0}, rank:{1}, alpha:{2}, RMSE:{3}".format(modelAls.aus_regParam, modelAls.aus_rank, modelAls.aus_alpha, modelAls.aus_rmse,seed))  
         
-        # modelFM.train(seed)
-        # resultsFM.append("Chosen parameters for FM and for seed {5}: regParam: {0}, maxIter:{1}, initStd:{2},factorSize:{3}, RMSE:{4}".format(modelFM.aus_regParam, modelFM.aus_maxIter, modelFM.aus_initStd,modelFM.aus_factorSize, modelFM.aus_rmse,seed))
+        modelFM.train(seed)
+        resultsFM.append("Chosen parameters for FM and for seed {5}: regParam: {0}, maxIter:{1}, initStd:{2},factorSize:{3}, RMSE:{4}".format(modelFM.aus_regParam, modelFM.aus_maxIter, modelFM.aus_initStd,modelFM.aus_factorSize, modelFM.aus_rmse,seed))
 
         modelFM_Alternative.train(seed)
         resultsFMAlternative.append("Chosen parameters for FM alternartive{5}: regParam: {0}, maxIter:{1}, initStd:{2},factorSize:{3}, RMSE:{4}".format(modelFM_Alternative.aus_regParam, modelFM_Alternative.aus_maxIter, modelFM_Alternative.aus_initStd,modelFM_Alternative.aus_factorSize, modelFM_Alternative.aus_rmse,seed))
@@ -166,15 +166,25 @@ def applyCrossValidation():
     df_PPI = dataset.getPPInteractionsTable(weight=config['PPIWeighted'], noFilter=config['PPINotFiltered'])
     saveDataframeOnCSV(df_PPI, config['nameFilePPI']+"cv")
     print("Saving completed")
+    
+    print("Save PPI weight on file")
+    df_PPI_weigth = dataset.getPPInteractionsTable(weight=True, noFilter=config['PPINotFiltered'])
+    saveDataframeOnCSV(df_PPI, config['nameFilePPI']+"weight_cv")
+    print("Saving completed")
+    
 
-    print("Started initialization ALS model")
-    modelAls = ALSModel(df)
-    print("Completed initialization ALS model")
+    # print("Started initialization ALS model")
+    # modelAls = ALSModel(df)
+    # print("Completed initialization ALS model")
 
 
     print("Started initialization FM model with same dataframe of FM model")
     modelFM = FMModel(df, sparkSession)
     print("Completed initialization FM model with same dataframe of FM model")
+    
+    print("Started initialization FM model alternative weight")
+    modelFM_Alternative_weigth = FMModel(df,sparkSession ,df_DTI, df_PPI_weigth, True)
+    print("Completed initialization FM model alternative weight")
 
     print("Started initialization FM model alternative")
     modelFM_Alternative = FMModel(df,sparkSession ,df_DTI, df_PPI, True)
@@ -190,10 +200,33 @@ def applyCrossValidation():
     # print("Save result on file")
     # saveResultsOnFile(resultAls, "result_cross_als.txt")
     # print("Completed saving result on file")
+    
+    
+    results = []
+    print("Start cross validation FM")
+    modelFM.crossValidation()
+    map_hyper = modelFM.cvModel.getEstimatorParamMaps()                       
+    results.append("The best rmse FM is:{0}".format(modelFM.cvModel.avgMetrics[modelFM.index_best]))
+    results.append("The best hyperparameters FM are:{0}".format(map_hyper[modelFM.index_best]))
+    print("Finish cross validation FM")
+    
+    print("Start cross validation FM alternative weight")
+    modelFM_Alternative_weigth.crossValidation()
+    map_hyper = modelFM_Alternative_weigth.cvModel.getEstimatorParamMaps()                       
+    results.append("The best rmse FM alternative weight is:{0}".format(modelFM_Alternative_weigth.cvModel.avgMetrics[modelFM_Alternative_weigth.index_best]))
+    results.append("The best hyperparameters FM  alternative weight are:{0}".format(map_hyper[modelFM_Alternative_weigth.index_best]))
+    print("Finish cross validation FM alternative weight")
+    
+    print("Start cross validation FM alternative")
+    modelFM_Alternative.crossValidation()
+    map_hyper = modelFM_Alternative.cvModel.getEstimatorParamMaps()                       
+    results.append("The best rmse FM alternative  is:{0}".format(modelFM_Alternative.cvModel.avgMetrics[modelFM_Alternative.index_best]))
+    results.append("The best hyperparameters FM  alternative are:{0}".format(map_hyper[modelFM_Alternative.index_best]))
+    print("Finish cross validation FM alternative")
+    print("Save result on file")
+    saveDataframeOnCSV(results, "CV_Final")
+    print("Completed result on file")
 
-    # print("Start cross validation FM")
-    # modelFM.crossValidation()
-    # print("Finish cross validation FM")
 
     # print("Start cross validation FM alternative")
     # resultsFMAlternative = modelFM_Alternative.avgCrossvalidation()
@@ -204,18 +237,18 @@ def applyCrossValidation():
     # saveResultsOnFile(resultsFMAlternative, "result_cross_fm.txt")
     # print("Completed saving result on file")
     
-    print("Take predictions from CV")
-    print("Divide training set and test set")
-    (training, test) = modelFM_Alternative.data.randomSplit([0.8, 0.2])
-    print("Start cross validation FM alternative")
-    modelFM_Alternative.crossValidation(training)
-    print("Finish cross validation FM alternative")
-    print("Start predictions")
-    predictions = modelFM_Alternative.cvModel.transform(test)
-    predictions.show()
-    predictions = predictions.select("proteinId_int","drugId_int", "amount_interactions", "prediction")
-    print("Save result on file")
-    saveDataframeOnCSV(predictions, config['nameFilePredictionsFMAlternative'])
-    print("Completed result on file")
+    # print("Take predictions from CV")
+    # print("Divide training set and test set")
+    # (training, test) = modelFM_Alternative.data.randomSplit([0.8, 0.2])
+    # print("Start cross validation FM alternative")
+    # modelFM_Alternative.crossValidation(training)
+    # print("Finish cross validation FM alternative")
+    # print("Start predictions")
+    # predictions = modelFM_Alternative.cvModel.transform(test)
+    # predictions.show()
+    # predictions = predictions.select("proteinId_int","drugId_int", "amount_interactions", "prediction")
+    # print("Save result on file")
+    # saveDataframeOnCSV(predictions, config['nameFilePredictionsFMAlternative'])
+    # print("Completed result on file")
     sparkSession.stop()
 
