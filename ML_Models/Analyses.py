@@ -178,9 +178,9 @@ def applyCrossValidation():
     # print("Completed initialization ALS model")
 
 
-    print("Started initialization FM model with same dataframe of FM model")
-    modelFM = FMModel(df, sparkSession)
-    print("Completed initialization FM model with same dataframe of FM model")
+    # print("Started initialization FM model with same dataframe of FM model")
+    # modelFM = FMModel(df, sparkSession)
+    # print("Completed initialization FM model with same dataframe of FM model")
     
     print("Started initialization FM model alternative weight")
     modelFM_Alternative_weigth = FMModel(df,sparkSession ,df_DTI, df_PPI_weigth, True)
@@ -202,16 +202,16 @@ def applyCrossValidation():
     # print("Completed saving result on file")
     
     
-    results = []
-    print("Start cross validation FM")
-    modelFM.crossValidation()
-    map_hyper = modelFM.cvModel.getEstimatorParamMaps()                       
-    results.append("The best rmse FM is:{0}".format(modelFM.cvModel.avgMetrics[modelFM.index_best]))
-    results.append("The best hyperparameters FM are:{0}".format(map_hyper[modelFM.index_best]))
-    print("Finish cross validation FM")
-    print("Save result on file")
-    saveDataframeOnCSV(results, "results_FM")
-    print("Completed result on file")
+    # results = []
+    # print("Start cross validation FM")
+    # modelFM.crossValidation()
+    # map_hyper = modelFM.cvModel.getEstimatorParamMaps()                       
+    # results.append("The best rmse FM is:{0}".format(modelFM.cvModel.avgMetrics[modelFM.index_best]))
+    # results.append("The best hyperparameters FM are:{0}".format(map_hyper[modelFM.index_best]))
+    # print("Finish cross validation FM")
+    # print("Save result on file")
+    # saveResultsOnFile(results, "results_FM")
+    # print("Completed result on file")
     
     resultsFMAlternativeWeight = []
     print("Start cross validation FM alternative weight")
@@ -221,7 +221,7 @@ def applyCrossValidation():
     resultsFMAlternativeWeight.append("The best hyperparameters FM  alternative weight are:{0}".format(map_hyper[modelFM_Alternative_weigth.index_best]))
     print("Finish cross validation FM alternative weight")
     print("Save result on file")
-    saveDataframeOnCSV(resultsFMAlternativeWeight, "resultsFMAlternativeWeight")
+    saveResultsOnFile(resultsFMAlternativeWeight, "resultsFMAlternativeWeight")
     print("Completed result on file")
     
     
@@ -233,7 +233,7 @@ def applyCrossValidation():
     resultsFMAlternative.append("The best hyperparameters FM  alternative are:{0}".format(map_hyper[modelFM_Alternative.index_best]))
     print("Finish cross validation FM alternative")
     print("Save result on file")
-    saveDataframeOnCSV(resultsFMAlternative, "resultsFMAlternative")
+    saveResultsOnFile(resultsFMAlternative, "resultsFMAlternative")
     print("Completed result on file")
 
 

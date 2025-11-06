@@ -41,49 +41,124 @@ uniprot all'incirca 2602 proteine su 1000 righe
 
 # g = ig.Graph(edges=edgeList)
 
-Chosen parameters: regParam: 0.01, maxIter:5500, initStd:0.1,factorSize:3, RMSE:1.1691024908715422
-Chosen parameters: regParam: 0.01, maxIter:1000, initStd:0.1,factorSize:11, RMSE:1.1748271059079674
-Chosen parameters: regParam: 0.1, maxIter:900, initStd:0.1,factorSize:2, RMSE:1.0948655387229844
-
-
-Chosen parameters: regParam: 0.01, maxIter:5000, initStd:0.1,factorSize:2, RMSE:0.7995355277211346
-
-Chosen parameters for ALS: regParam: 0.1, rank:35, alpha:10.0, RMSE:0.7379567205862622
-Chosen parameters for FM: regParam: 0.1, maxIter:1000, initStd:0.1,factorSize:2, RMSE:1.529792468203947
-Chosen parameters for FM WEIGHT: regParam: 0.1, maxIter:1000, initStd:0.1,factorSize:2, RMSE:0.6768022922853879
-Chosen parameters for FM WEIGHT: regParam: 0.1, maxIter:1000, initStd:0.1,factorSize:2, RMSE:0.7097834369526423 senza i 0.5 sotto
-
-
-Chosen parameters for ALS: regParam: 0.1, rank:30, alpha:10.0, RMSE:0.7925182766951163
-Chosen parameters for FM WEIGHT: regParam: 0.1, maxIter:1000, initStd:0.1,factorSize:4, RMSE:0.7573606755777234
-
-Chosen parameters for ALS: regParam: 0.1, rank:35, alpha:10.0, RMSE:0.7779192118500439
-Chosen parameters for FM WEIGHT: regParam: 0.1, maxIter:1000, initStd:0.1,factorSize:12, RMSE:0.7384839341962539
-
-Chosen parameters for ALS: regParam: 0.1, rank:35, alpha:10.0, RMSE:0.7499679300272661
-Chosen parameters for FM WEIGHT: regParam: 0.1, maxIter:1000, initStd:0.1,factorSize:2, RMSE:0.7627806393957951
-
-Chosen parameters for ALS: regParam: 0.1, rank:35, alpha:10.0, RMSE:0.7993442962714252
-Chosen parameters for FM WEIGHT: regParam: 0.1, maxIter:1000, initStd:0.1,factorSize:8, RMSE:0.7285177197364054
-
-Chosen parameters: regParam: 0.1, rank:35, alpha:10.0, RMSE:0.7712180177574456
-Chosen parameters: regParam: 0.1, rank:25, alpha:10.0, RMSE:0.8697872492728245
- Chosen parameters: regParam: 0.01, maxIter:1000, initStd:0.1,factorSize:2, RMSE:0.9743901860101165
-
- Chosen parameters: regParam: 0.01, maxIter:1000, initStd:0.1,factorSize:2, RMSE:0.9430104642619399
- Chosen parameters: regParam: 0.01, maxIter:5000, initStd:0.1,factorSize:26, RMSE:0.9414912812565441
- Chosen parameters: regParam: 0.1, maxIter:200, initStd:0.01,factorSize:2, RMSE:0.9555595217250432
-
-0.7928889862823133
-0.8890113045186723
-
- Chosen parameters: regParam: 0.1, rank:35, alpha:10.0, RMSE:0.8679239741689826
-
-
-         //    "regParams" : [0.01, 0.1],
-        // "ranks" : [25,30,35],
-        // "alphas" : [10.0, 20.0, 40.0, 60.0, 80.0, 100.0]
-
-        1363
-        287
-        784
+    "proteinsToAnalyse" : [ "P27348"
+                            ,"P41279"
+                            ,"Q9Y244"
+                            ,"Q15596"
+                            ,"Q04864"
+                            ,"O43187"
+                            ,"P49368"
+                            ,"Q9NR28"
+                            ,"Q13546"
+                            ,"P04049"
+                            ,"Q13547"
+                            ,"Q62225"
+                            ,"O75528"
+                            ,"Q96ST3"
+                            ,"P41743"
+                            ,"P54253"
+                            ,"Q9P0L2"
+                            ,"Q92796"
+                            ,"Q01344"
+                            ,"Q9BYG4"
+                            ,"P63000"
+                            ,"P58062"
+                            ,"Q13490"
+                            ,"Q62936"
+                            ,"O15111"
+                            ,"Q15700"
+                            ,"Q9Y4A5"
+                            ,"Q7KZI7"
+                            ,"P20333"
+                            ,"Q60974"
+                            ,"P01857"
+                            ,"Q9Y6K9"
+                            ,"Q15628"
+                            ,"Q9UBK2"
+                            ,"P22681"
+                            ,"P63104"
+                            ,"Q13625"
+                            ,"P04004"
+                            ,"Q9TU32"
+                            ,"Q00653"
+                            ,"O00750"
+                            ,"O75970"
+                            ,"P04626"
+                            ,"Q12913"
+                            ,"Q99640"
+                            ,"Q9UKB1"
+                            ,"P21860"
+                            ,"P06241"
+                            ,"P60953-2"
+                            ,"P15941"
+                            ,"Q14289"
+                            ,"Q9UER7"
+                            ,"Q9NRD5"
+                            ,"P54274"
+                            ,"P31946"
+                            ,"P27958"
+                            ,"P49720"
+                            ,"P62161"
+                            ,"P56945"
+                            ,"P13569"
+                            ,"Q04206"
+                            ,"Q02241"
+                            ,"Q99436"
+                            ,"Q16890"
+                            ,"P18031"
+                            ,"Q01201"
+                            ,"P25963"
+                            ,"Q15653"
+                            ,"Q99558"
+                            ,"P02679"
+                            ,"P63244"
+                            ,"Q12933"
+                            ,"P02675"
+                            ,"P61981"
+                            ,"Q04759"
+                            ,"Q9BYG5"
+                            ,"O43464"
+                            ,"P55211"
+                            ,"P09038"
+                            ,"Q13444"
+                            ,"P35609"
+                            ,"P60953"
+                            ,"Q06124"
+                            ,"P25786"
+                            ,"Q04917"
+                            ,"P56524"
+                            ,"P16410"
+                            ,"P19438"
+                            ,"Q61337"
+                            ,"Q14191"
+                            ,"O43463"
+                            ,"P31016"
+                            ,"P19174"
+                            ,"P27448"
+                            ,"P53041"
+                            ,"O14727"
+                            ,"P03372"
+                            ,"P09619"
+                            ,"P49815"
+                            ,"P15692-4"
+                            ,"Q15750"
+                            ,"Q9Y4K3"
+                            ,"Q9ULZ3"
+                            ,"P20023"
+                            ,"O43524"
+                            ,"Q15303"
+                            ,"Q9UMX0"
+                            ,"Q61097"
+                            ,"P30305"
+                            ,"P05230"
+                            ,"Q8TEW0"
+                            ,"P01127"
+                            ,"P78352"
+                            ,"P49810"
+                            ,"Q13219"
+                            ,"P05113"
+                            ,"Q9NPB6"
+                            ,"P98170"
+                            ,"P40337"
+                            ,"P62258"
+                            ,"Q96N67"
