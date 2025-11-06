@@ -569,3 +569,13 @@ ML_Models/interactions_DPcv/.part-00000-cc38c50a-7ddd-4b9c-94ae-2320e25daf27-c00
 ML_Models/DTIcv/part-00000-71069982-1cf3-45bd-974a-ec58bc0386e1-c000.csv
 ML_Models/DTIcv/.part-00000-71069982-1cf3-45bd-974a-ec58bc0386e1-c000.csv.crc
 ML_Models/dati_dataset_training/part-00000-593028bf-7590-41c2-9e2d-fd33a1661a5c-c000.csv
+ML_Models/dataset/_SUCCESS
+ML_Models/PPI/part-00000-36dd902e-3d34-4381-a8e7-3324de5e9df3-c000.csv
+ML_Models/PPI/.part-00000-36dd902e-3d34-4381-a8e7-3324de5e9df3-c000.csv.crc
+ML_Models/interactions_DP/part-00000-4ac71a9c-4c1d-47f0-9a5a-4826ca3ef810-c000.csv
+ML_Models/interactions_DP/.part-00000-4ac71a9c-4c1d-47f0-9a5a-4826ca3ef810-c000.csv.crc
+ML_Models/DTI/part-00000-722006e8-59f9-4662-84e1-48e5cb6b1f51-c000.csv
+ML_Models/DTI/.part-00000-722006e8-59f9-4662-84e1-48e5cb6b1f51-c000.csv.crc
+ML_Models/dataset/part-00000-e7318879-f6a3-4feb-a05b-65d2e91aa531-c000.csv
+ML_Models/dataset/.part-00000-e7318879-f6a3-4feb-a05b-65d2e91aa531-c000.csv.crc
+ML_Models/dataset/._SUCCESS.crc

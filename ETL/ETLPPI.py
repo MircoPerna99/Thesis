@@ -59,3 +59,4 @@ class ETLPPI():
         
 
 etl = ETLPPI()
+etl.syncFromTextToMongo()

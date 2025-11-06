@@ -49,10 +49,9 @@ class FMModel():
         return self.spark.createDataFrame(pd.DataFrame(data=matrix,columns=columns_name))
         
     def _addSuffixToColumns(self, suffix, columnNoToChange, dataframe):
-        for column in dataframe.columns:
-            if column != columnNoToChange: 
-                dataframe = dataframe.withColumnRenamed(column, column+suffix)
-                
+        column_map = {c: c + suffix if c != columnNoToChange else c for c in dataframe.columns} 
+
+        dataframe = dataframe.withColumnsRenamed(column_map)
         return dataframe
     
     def _clean_data(self):
@@ -71,25 +70,27 @@ class FMModel():
         self.data.show(2)
         
     def createMatrixAlternative(self, DTI_fm, PPI_fm):
-        df_drugs_ps = self._createOneHotCodeDF(True)
-        df_target_ps = self._createOneHotCodeDF(False)
+        # df_drugs_ps = self._createOneHotCodeDF(True)
+        # df_target_ps = self._createOneHotCodeDF(False)
                 
         df_inter = self.data.withColumnRenamed("drugId", "drugId_int")
         df_inter = df_inter.withColumnRenamed("proteinId", "proteinId_int")
         
+        print("add suffix")
         DTI_fm = self._addSuffixToColumns("_DTI","drugId",DTI_fm)
         PPI_fm = self._addSuffixToColumns("_PPI","proteinId",PPI_fm)
         
         DTI_fm = DTI_fm.orderBy("drugId")  
         PPI_fm = PPI_fm.orderBy("proteinId")   
-        
         df_table = df_inter.join(DTI_fm, DTI_fm.drugId == df_inter.drugId_int)
         df_table = df_table.join(PPI_fm, PPI_fm.proteinId == df_inter.proteinId_int)
         # df_table = df_table.join(df_drugs_ps, df_table.drugId_int == df_drugs_ps.drugId_one_hot)
         # df_table = df_table.join(df_target_ps, df_table.proteinId_int == df_target_ps.proteinId_one_hot)
         self.data = df_table.orderBy("drugId_int", "proteinId_int")
         self._clean_data()
-        self.data.show(1)
+        print("Save result on file")
+        self.data.write.mode("overwrite").option("header", True).csv("ML_Models/dataset")
+        print("Completed result on file")
         self._createFinalDataSet()
 
     
@@ -113,7 +114,6 @@ class FMModel():
         df_table = df_table.join(df_target_ps, df_table.proteinId_int == df_target_ps.proteinId_one_hot)
         self.data = df_table.orderBy("drugId_int", "proteinId_int")
         self._clean_data()
-        self.data.show(1)
         self._createFinalDataSet()
 
     def train(self, seed = 42):

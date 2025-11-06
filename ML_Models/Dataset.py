@@ -72,16 +72,11 @@ class Dataset():
         DTIs = []
         repositoryMongo = RepositoryMongo()
 
-        for ppi in self.PPIs:
-            query = '{ "proteinId": "'+ppi._proteinAId+'"}'
+        for ppi in self.PPIs: 
+            query = '{"$or": [ { "proteinId": "'+ppi._proteinAId+'"},{ "proteinId": "'+ppi._proteinBId+'"}]}'
             DTIsToAdd = repositoryMongo.readDTIs(query)
             if(DTIsToAdd != None or len(DTIsToAdd) != 0):
                 DTIs.extend(DTIsToAdd)
-            
-            query = '{ "proteinId": "'+ppi._proteinBId+'"}'
-            DTIsToAdd = repositoryMongo.readDTIs(query)
-            if(DTIsToAdd != None or len(DTIsToAdd) != 0):
-                DTIs.extend(DTIsToAdd)   
         
         repositoryMongo.close_connection()
         
@@ -95,8 +90,9 @@ class Dataset():
     def _DTIToDataFrame(self):
         rows = [Row(drugId=d._drugId,
                     proteinId=d._proteinId) for d in self.DTIs]
-
-        return self.spark.createDataFrame(rows)
+        dfDTI_sp = self.spark.createDataFrame(rows)
+        dfDTI_sp = dfDTI_sp.select("drugId", "proteinId").distinct()
+        return  dfDTI_sp
     
     def _PPIToDataFrame(self, noFilter = True):
         
@@ -112,12 +108,16 @@ class Dataset():
                     proteinBId=p._proteinBId,
                     score = p._score) for p in PPIs]
 
-        return  self.spark.createDataFrame(rows)
+        dfPPI_sp = self.spark.createDataFrame(rows)
+        dfPPI_sp = dfPPI_sp.groupBy("proteinAId", "proteinBId") \
+                    .agg(F.max("score").alias("score"))
+        return  dfPPI_sp
     
     def getDTAmountInteractions(self):            
         dfDTI_sp = self._DTIToDataFrame()
         dfPPI_sp = self._PPIToDataFrame()
-
+        dfDTI_sp.show()
+        
         joinedDF = dfDTI_sp.join(dfPPI_sp, (dfDTI_sp.proteinId == dfPPI_sp.proteinAId) & (dfPPI_sp.score >= 0.5))
 
         DTIsGrouped = dfDTI_sp.groupBy("drugId").agg(collect_list("proteinId").alias("proteins")).orderBy("drugId")

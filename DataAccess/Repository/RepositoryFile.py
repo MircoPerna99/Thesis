@@ -22,7 +22,7 @@ class RepositoryFile():
         return True
     
     def readFile(self, sep = '\t'):
-        df = pd.read_csv(self._fileName,sep=sep,on_bad_lines='warn', nrows=6000)
+        df = pd.read_csv(self._fileName,sep=sep,on_bad_lines='warn', nrows=15000)
         return df
 
     def readDTIs(self):

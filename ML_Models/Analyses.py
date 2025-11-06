@@ -45,7 +45,7 @@ def applyAnlyses():
     dataset.getDTIForAnlysesTemp()
     print("Amount DTI:{0}".format(len(dataset.DTIs)))
     print("Finished to get DTI")
-
+        
     if(config['showGraph']):
         dataset.toGraph()
 
@@ -88,9 +88,9 @@ def applyAnlyses():
     resultsFMAlternative = []
 
     for seed in seeds:
-        # print("Analyses for seed:{0}".format(seed))
-        # modelAls.train(seed)
-        # resultAls.append("Chosen parameters for seed{4}: regParam: {0}, rank:{1}, alpha:{2}, RMSE:{3}".format(modelAls.aus_regParam, modelAls.aus_rank, modelAls.aus_alpha, modelAls.aus_rmse,seed))  
+        print("Analyses for seed:{0}".format(seed))
+        modelAls.train(seed)
+        resultAls.append("Chosen parameters for seed{4}: regParam: {0}, rank:{1}, alpha:{2}, RMSE:{3}".format(modelAls.aus_regParam, modelAls.aus_rank, modelAls.aus_alpha, modelAls.aus_rmse,seed))  
         
         modelFM.train(seed)
         resultsFM.append("Chosen parameters for FM and for seed {5}: regParam: {0}, maxIter:{1}, initStd:{2},factorSize:{3}, RMSE:{4}".format(modelFM.aus_regParam, modelFM.aus_maxIter, modelFM.aus_initStd,modelFM.aus_factorSize, modelFM.aus_rmse,seed))
@@ -191,7 +191,7 @@ def applyCrossValidation():
     print("Completed initialization FM model alternative")
 
     resultAls = []
-    resultsFMAlternative = []
+
     # print("Start cross validation ALS")
     # resultAls = modelAls.avgCrossvalidation()
     # avg = np.mean(resultAls)
@@ -209,22 +209,31 @@ def applyCrossValidation():
     results.append("The best rmse FM is:{0}".format(modelFM.cvModel.avgMetrics[modelFM.index_best]))
     results.append("The best hyperparameters FM are:{0}".format(map_hyper[modelFM.index_best]))
     print("Finish cross validation FM")
+    print("Save result on file")
+    saveDataframeOnCSV(results, "results_FM")
+    print("Completed result on file")
     
+    resultsFMAlternativeWeight = []
     print("Start cross validation FM alternative weight")
     modelFM_Alternative_weigth.crossValidation()
     map_hyper = modelFM_Alternative_weigth.cvModel.getEstimatorParamMaps()                       
-    results.append("The best rmse FM alternative weight is:{0}".format(modelFM_Alternative_weigth.cvModel.avgMetrics[modelFM_Alternative_weigth.index_best]))
-    results.append("The best hyperparameters FM  alternative weight are:{0}".format(map_hyper[modelFM_Alternative_weigth.index_best]))
+    resultsFMAlternativeWeight.append("The best rmse FM alternative weight is:{0}".format(modelFM_Alternative_weigth.cvModel.avgMetrics[modelFM_Alternative_weigth.index_best]))
+    resultsFMAlternativeWeight.append("The best hyperparameters FM  alternative weight are:{0}".format(map_hyper[modelFM_Alternative_weigth.index_best]))
     print("Finish cross validation FM alternative weight")
+    print("Save result on file")
+    saveDataframeOnCSV(resultsFMAlternativeWeight, "resultsFMAlternativeWeight")
+    print("Completed result on file")
     
+    
+    resultsFMAlternative = []
     print("Start cross validation FM alternative")
     modelFM_Alternative.crossValidation()
     map_hyper = modelFM_Alternative.cvModel.getEstimatorParamMaps()                       
-    results.append("The best rmse FM alternative  is:{0}".format(modelFM_Alternative.cvModel.avgMetrics[modelFM_Alternative.index_best]))
-    results.append("The best hyperparameters FM  alternative are:{0}".format(map_hyper[modelFM_Alternative.index_best]))
+    resultsFMAlternative.append("The best rmse FM alternative  is:{0}".format(modelFM_Alternative.cvModel.avgMetrics[modelFM_Alternative.index_best]))
+    resultsFMAlternative.append("The best hyperparameters FM  alternative are:{0}".format(map_hyper[modelFM_Alternative.index_best]))
     print("Finish cross validation FM alternative")
     print("Save result on file")
-    saveDataframeOnCSV(results, "CV_Final")
+    saveDataframeOnCSV(resultsFMAlternative, "resultsFMAlternative")
     print("Completed result on file")
 
 

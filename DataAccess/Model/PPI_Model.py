@@ -35,11 +35,8 @@ class PPIModel():
             print("New prefix find ", proteinId)
             return None
 
-    def _cleanScore(self, confidenceScore: str):        
-        pattern = r"^(" + self._dirtyDataOnConfidenceScore+ "[0-9]*\.?[0-9]*)"
-        match = re.search(pattern, confidenceScore)
-        if match:
-            return float(match.group().replace(self._dirtyDataOnConfidenceScore, ""))
+    def _cleanScore(self, confidenceScore: str):            
+        return float(confidenceScore.split(self._dirtyDataOnConfidenceScore)[1])
     
     def setValuesFromText(self,  proteinAId : str, proteinBId : str, confidenceScore : str):
                 
@@ -60,7 +57,7 @@ class PPIModel():
             return False
         
         if(not isinstance(confidenceScore, float)):
-            print("The confidenceScore is not a float type")
+            print("The confidenceScore is not a float type"+ str(confidenceScore))
             return False
         
         return True
