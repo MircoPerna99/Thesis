@@ -130,6 +130,8 @@ def applyCrossValidation():
                             .config("spark.ui.showConsoleProgress", "false") \
                             .config("spark.driver.bindAddress", "127.0.0.1") \
                             .config("spark.driver.memory", "32g") \
+                            .config("spark.executor.memory", "16g") \
+                            .config("spark.executor.cores", "8") \
                             .getOrCreate()
                             
     sparkSession.sparkContext.setLogLevel("ERROR")
