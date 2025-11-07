@@ -132,6 +132,8 @@ def applyCrossValidation():
                             .config("spark.driver.memory", "32g") \
                             .config("spark.executor.memory", "16g") \
                             .config("spark.executor.cores", "8") \
+                            .config("spark.driver.extraJavaOptions", "-Xss4m") \
+                            .config("spark.executor.extraJavaOptions", "-Xss4m") \
                             .getOrCreate()
                             
     sparkSession.sparkContext.setLogLevel("ERROR")
