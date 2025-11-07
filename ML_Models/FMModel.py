@@ -76,7 +76,6 @@ class FMModel():
         df_inter = self.data.withColumnRenamed("drugId", "drugId_int")
         df_inter = df_inter.withColumnRenamed("proteinId", "proteinId_int")
         
-        print("add suffix")
         DTI_fm = self._addSuffixToColumns("_DTI","drugId",DTI_fm)
         PPI_fm = self._addSuffixToColumns("_PPI","proteinId",PPI_fm)
         
