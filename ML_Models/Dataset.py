@@ -41,7 +41,7 @@ class Dataset():
             PPIs =  repositoryMongo.readPPIs()
         else:       
             for protein in self.proteinsForTest:
-                query = '{ "proteinBId": "'+protein+'"}'
+                query = '{ "proteinAId": "'+protein+'"}'
                 PPIsToAdd = repositoryMongo.readPPIs(query)
                 if(PPIsToAdd != None and len(PPIsToAdd)>0):
                     for ppi in PPIsToAdd:

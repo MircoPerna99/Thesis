@@ -41,10 +41,10 @@ def applyAnlyses():
     dataset = Dataset(sparkSession)
     print("Finished initialization dataset")
     print("Started to get PPI")
-    dataset.getPPIForAnalysesTemp()
+    dataset.getPPIForAnalyses()
     print("Amount PPI:{0}".format(len(dataset.PPIs)))
     print("Finished to get PPI\nStarted to get DTI")
-    dataset.getDTIForAnlysesTemp()
+    dataset.getDTIForAnlyses()
     print("Amount DTI:{0}".format(len(dataset.DTIs)))
     print("Finished to get DTI")
         
@@ -409,9 +409,7 @@ def analysysBiologicalNetwork():
             degree_distribution_protein_drug_total[total] = 1
     
     degree_distribution_protein_drug_total_f = calculateDictionaryFrequency(degree_distribution_protein_drug_total)
-    Histogram.show("Degree distribution Proteins in DTI and PPI", "Degree", "Frequency", degree_distribution_protein_drug_total_f.keys(), degree_distribution_protein_drug_total_f.values())   
-            
-               
+    Histogram.show("Degree distribution Proteins in DTI and PPI", "Degree", "Frequency", degree_distribution_protein_drug_total_f.keys(), degree_distribution_protein_drug_total_f.values())              
             
     sparkSession.stop()
 
