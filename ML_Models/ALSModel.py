@@ -75,7 +75,7 @@ class ALSModel():
     
     def crossValidation(self):
         aus_als = ALS(userCol = "ID_Drug_Index",
-                                  itemCol = "ID_Protein_Index", ratingCol = "amount_interactions",coldStartStrategy = "drop", seed=42)       
+                                  itemCol = "ID_Protein_Index", ratingCol = "amount_interactions",coldStartStrategy = "drop")       
         grid = ParamGridBuilder()\
                 .addGrid(aus_als.regParam, self._confing['hyperpameters_ALS']['regParams'])\
                 .addGrid(aus_als.rank, self._confing['hyperpameters_ALS']['ranks'])\
