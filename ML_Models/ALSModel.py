@@ -102,7 +102,7 @@ class ALSModel():
         return avgMetrics
     
     def predictionCrossvalidation(self):
-        df_prediction = self.data.orderBy("amount_interactions", ascending=[False]).limit(100)
+        df_prediction = self.data.orderBy("amount_interactions", ascending=[False]).limit(20)
         self.crossValidation()
 
         drug_name = IndexToString(inputCol = "ID_Drug_Index", outputCol = "drugId", labels = self.drug_indexer.labels)
