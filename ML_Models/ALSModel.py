@@ -104,11 +104,4 @@ class ALSModel():
     def predictionCrossvalidation(self):
         df_prediction = self.data.orderBy("amount_interactions", ascending=[False]).limit(20)
         self.crossValidation()
-
-        # drug_name = IndexToString(inputCol = "ID_Drug_Index", outputCol = "drugId", labels = self.drug_indexer.labels)
-        # prontein_name= IndexToString(inputCol = "ID_Protein_Index", outputCol = "proteinId", labels = self.prontein_indexer.labels)
-        # pipeline = Pipeline(stages = [drug_name, prontein_name])
-        # predictions = pipeline.fit(self.data).transform(self.cvModel.transform(df_prediction))
-        # predictions =   predictions.select("drugId","proteinId","rating")\
-        #                                                                     .orderBy("drugId","rating")
         return self.cvModel.transform(df_prediction)

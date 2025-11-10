@@ -179,14 +179,14 @@ def applyCrossValidation():
     print("Saving completed")
 
 
-    print("Started initialization ALS model")
-    modelAls = ALSModel(df)
-    print("Completed initialization ALS model")
+    # print("Started initialization ALS model")
+    # modelAls = ALSModel(df)
+    # print("Completed initialization ALS model")
 
 
-    print("Started initialization FM model with same dataframe of FM model")
-    modelFM = FMModel(df, sparkSession)
-    print("Completed initialization FM model with same dataframe of FM model")
+    # print("Started initialization FM model with same dataframe of FM model")
+    # modelFM = FMModel(df, sparkSession)
+    # print("Completed initialization FM model with same dataframe of FM model")
     
     # print("Started initialization FM model alternative weight")
     # modelFM_Alternative_weigth = FMModel(df,sparkSession ,df_DTI, df_PPI_weigth, True)
@@ -195,13 +195,13 @@ def applyCrossValidation():
     print("Started initialization FM model alternative")
     modelFM_Alternative = FMModel(df,sparkSession ,df_DTI, df_PPI, True)
     print("Completed initialization FM model alternative")
-    
-    prediction_ALS = modelAls.predictionCrossvalidation()
-    prediction_ALS.show(20)
-    prediction_FM = modelFM.predictionCrossvalidation()
-    prediction_FM.show(20)
-    prediction_FM_Alternative = modelFM_Alternative.predictionCrossvalidation()
-    prediction_FM_Alternative.show(20)
+    modelFM_Alternative.crossValidation()
+    # prediction_ALS = modelAls.predictionCrossvalidation()
+    # prediction_ALS.show(20)
+    # prediction_FM = modelFM.predictionCrossvalidation()
+    # prediction_FM.show(20)
+    # prediction_FM_Alternative = modelFM_Alternative.predictionCrossvalidation()
+    # prediction_FM_Alternative.show(20)
     
     
     
