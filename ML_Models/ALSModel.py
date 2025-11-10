@@ -111,4 +111,4 @@ class ALSModel():
         predictions = pipeline.fit(self.data).transform(self.cvModel.transform(df_prediction))
         predictions =   predictions.select("drugId","proteinId","rating")\
                                                                             .orderBy("drugId","rating")
-        return predictions
+        return self.cvModel.transform(df_prediction)
