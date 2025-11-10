@@ -22,7 +22,7 @@ class FMModel():
         self.data = data
         self._config = Configuration()
         if(isAlternative):
-            self.createMatrixAlternative(DTI_fm, PPI_fm)
+            self.createMatrix_final()
         else:
             self.createMatrix()
 
@@ -96,6 +96,27 @@ class FMModel():
 
 
     def createMatrix(self):
+        df_drugs_ps = self._createOneHotCodeDF(True)
+        df_target_ps = self._createOneHotCodeDF(False)
+
+        df_drugs_ps = df_drugs_ps.orderBy("drugId_one_hot")
+        df_target_ps = df_target_ps.orderBy("proteinId_one_hot")
+
+        df_table = self.data.orderBy("drugId").groupBy("drugId").pivot("proteinId").agg(F.first("amount_interactions")).fillna(0)
+        for column in df_table.columns:
+            if column != "drugId":
+                df_table = df_table.withColumnRenamed(column, f"{column}_Int")
+
+        df_inter = self.data.withColumnRenamed("drugId", "drugId_int")
+        df_inter = df_inter.withColumnRenamed("proteinId", "proteinId_int")
+        df_table = df_table.join(df_inter, df_table.drugId == df_inter.drugId_int)
+        df_table = df_table.join(df_drugs_ps, df_table.drugId_int == df_drugs_ps.drugId_one_hot)
+        df_table = df_table.join(df_target_ps, df_table.proteinId_int == df_target_ps.proteinId_one_hot)
+        self.data = df_table.orderBy("drugId_int", "proteinId_int")
+        self._clean_data()
+        self._createFinalDataSet()
+        
+    def createMatrix_final(self):
         df_drugs_ps = self._createOneHotCodeDF(True)
         df_target_ps = self._createOneHotCodeDF(False)
 
@@ -208,3 +229,9 @@ class FMModel():
             avgMetrics.append(result)
 
         return avgMetrics
+    
+    def predictionCrossvalidation(self):
+        df_prediction = self.data.orderBy("amount_interactions", ascending=[False]).limit(20)
+        self.crossValidation()
+
+        return self.cvModel.transform(df_prediction)

@@ -86,12 +86,12 @@ class ALSModel():
         evaluator = RegressionEvaluator(metricName = "rmse", labelCol = "amount_interactions", predictionCol = "prediction")
         
         cv = CrossValidator(estimator=aus_als, estimatorParamMaps=grid, evaluator=evaluator,parallelism=1, numFolds=5)
-        cvModel = cv.fit(self.data)
-        index_best = np.argmin(cvModel.avgMetrics)
-        map_hyper = cvModel.getEstimatorParamMaps()                       
-        print("The best rmse is:{0}".format(cvModel.avgMetrics[index_best]))
+        self.cvModel = cv.fit(self.data)
+        index_best = np.argmin(self.cvModel.avgMetrics)
+        map_hyper = self.cvModel.getEstimatorParamMaps()                       
+        print("The best rmse is:{0}".format(self.cvModel.avgMetrics[index_best]))
         print("The best hyperparameters are:{0}".format(map_hyper[index_best]))
-        return cvModel.avgMetrics[index_best]
+        return self.cvModel.avgMetrics[index_best]
         
     def avgCrossvalidation(self):
         avgMetrics = []
@@ -100,3 +100,15 @@ class ALSModel():
             avgMetrics.append(result)
         
         return avgMetrics
+    
+    def predictionCrossvalidation(self):
+        df_prediction = self.data.orderBy("amount_interactions", ascending=[False]).limit(100)
+        self.crossValidation()
+
+        drug_name = IndexToString(inputCol = "ID_Drug_Index", outputCol = "drugId", labels = self.drug_indexer.labels)
+        prontein_name= IndexToString(inputCol = "ID_Protein_Index", outputCol = "proteinId", labels = self.prontein_indexer.labels)
+        pipeline = Pipeline(stages = [drug_name, prontein_name])
+        predictions = pipeline.fit(self.data).transform(self.cvModel.transform(df_prediction))
+        predictions =   predictions.select("drugId","proteinId","rating")\
+                                                                            .orderBy("drugId","rating")
+        return predictions

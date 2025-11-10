@@ -177,7 +177,7 @@ def applyCrossValidation():
     df_PPI_weigth = dataset.getPPInteractionsTable(weight=True, noFilter=config['PPINotFiltered'])
     saveDataframeOnCSV(df_PPI, config['nameFilePPI']+"weight_cv")
     print("Saving completed")
-    
+
 
     print("Started initialization ALS model")
     modelAls = ALSModel(df)
@@ -192,14 +192,23 @@ def applyCrossValidation():
     # modelFM_Alternative_weigth = FMModel(df,sparkSession ,df_DTI, df_PPI_weigth, True)
     # print("Completed initialization FM model alternative weight")
 
-    # print("Started initialization FM model alternative")
-    # modelFM_Alternative = FMModel(df,sparkSession ,df_DTI, df_PPI, True)
-    # print("Completed initialization FM model alternative")
-
-    resultAls = []
+    print("Started initialization FM model alternative")
+    modelFM_Alternative = FMModel(df,sparkSession ,df_DTI, df_PPI, True)
+    print("Completed initialization FM model alternative")
+    
+    prediction_ALS = modelAls.predictionCrossvalidation()
+    prediction_ALS.show(20)
+    prediction_FM = modelFM.predictionCrossvalidation()
+    prediction_FM.show(20)
+    prediction_FM_Alternative = modelFM_Alternative.predictionCrossvalidation()
+    prediction_FM_Alternative.show(20)
+    
+    
+    
+    # resultAls = []
 
     # print("Start cross validation ALS")
-    # resultAls = modelAls.avgCrossvalidation()
+    # resultAls = modelAls.cos()
     # avg = np.mean(resultAls)
     # resultAls.append("The mean is:{0}".format(avg))
     # print("Finish cross validation ALS")
@@ -208,15 +217,15 @@ def applyCrossValidation():
     # print("Completed saving result on file")
     
     
-    results = []
-    print("Start cross validation FM")
-    results = modelFM.avgCrossvalidation()
-    avg = np.mean(results)
-    results.append(avg)
-    print("Finish cross validation FM")
-    print("Save result on file")
-    saveResultsOnFile(results, "result_cross_fm.txt")
-    print("Completed saving result on file")
+    # results = []
+    # # print("Start cross validation FM")
+    # # results = modelFM.avgCrossvalidation()
+    # # avg = np.mean(results)
+    # # results.append(avg)
+    # # print("Finish cross validation FM")
+    # # print("Save result on file")
+    # # saveResultsOnFile(results, "result_cross_fm.txt")
+    # # print("Completed saving result on file")
     # print("Start cross validation FM")
     # modelFM.crossValidation()
     # map_hyper = modelFM.cvModel.getEstimatorParamMaps()                       
@@ -227,24 +236,24 @@ def applyCrossValidation():
     # saveResultsOnFile(results, "results_FM")
     # print("Completed result on file")
     
-    # resultsFMAlternativeWeight = []
-    # print("Start cross validation FM alternative")
-    # resultsFMAlternativeWeight = modelFM_Alternative_weigth.avgCrossvalidation()
-    # avg = np.mean(resultsFMAlternativeWeight)
-    # resultsFMAlternativeWeight.append(avg)
-    # print("Finish cross validation FM alternative weight")
-    # print("Save result on file")
-    # saveResultsOnFile(resultsFMAlternativeWeight, "result_cross_fm_weight.txt")
-    # print("Completed saving result on file")
-    # print("Start cross validation FM alternative weight")
-    # modelFM_Alternative_weigth.crossValidation()
-    # map_hyper = modelFM_Alternative_weigth.cvModel.getEstimatorParamMaps()                       
-    # resultsFMAlternativeWeight.append("The best rmse FM alternative weight is:{0}".format(modelFM_Alternative_weigth.cvModel.avgMetrics[modelFM_Alternative_weigth.index_best]))
-    # resultsFMAlternativeWeight.append("The best hyperparameters FM  alternative weight are:{0}".format(map_hyper[modelFM_Alternative_weigth.index_best]))
-    # print("Finish cross validation FM alternative weight")
-    # print("Save result on file")
-    # saveResultsOnFile(resultsFMAlternativeWeight, "resultsFMAlternativeWeight")
-    # print("Completed result on file")
+    # # resultsFMAlternativeWeight = []
+    # # print("Start cross validation FM alternative")
+    # # resultsFMAlternativeWeight = modelFM_Alternative_weigth.avgCrossvalidation()
+    # # avg = np.mean(resultsFMAlternativeWeight)
+    # # resultsFMAlternativeWeight.append(avg)
+    # # print("Finish cross validation FM alternative weight")
+    # # print("Save result on file")
+    # # saveResultsOnFile(resultsFMAlternativeWeight, "result_cross_fm_weight.txt")
+    # # print("Completed saving result on file")
+    # # print("Start cross validation FM alternative weight")
+    # # modelFM_Alternative_weigth.crossValidation()
+    # # map_hyper = modelFM_Alternative_weigth.cvModel.getEstimatorParamMaps()                       
+    # # resultsFMAlternativeWeight.append("The best rmse FM alternative weight is:{0}".format(modelFM_Alternative_weigth.cvModel.avgMetrics[modelFM_Alternative_weigth.index_best]))
+    # # resultsFMAlternativeWeight.append("The best hyperparameters FM  alternative weight are:{0}".format(map_hyper[modelFM_Alternative_weigth.index_best]))
+    # # print("Finish cross validation FM alternative weight")
+    # # print("Save result on file")
+    # # saveResultsOnFile(resultsFMAlternativeWeight, "resultsFMAlternativeWeight")
+    # # print("Completed result on file")
     
     
     # resultsFMAlternative = []
@@ -257,14 +266,14 @@ def applyCrossValidation():
     # print("Save result on file")
     # saveResultsOnFile(resultsFMAlternative, "resultsFMAlternative")
     # print("Completed result on file")
-    # print("Start cross validation FM alternative")
-    # resultsFMAlternative = modelFM_Alternative.avgCrossvalidation()
-    # avg = np.mean(resultsFMAlternative)
-    # resultsFMAlternative.append(avg)
-    # print("Finish cross validation FM alternative")
-    # print("Save result on file")
-    # saveResultsOnFile(resultsFMAlternative, "result_cross_fm.txt")
-    # print("Completed saving result on file")
+    # # print("Start cross validation FM alternative")
+    # # resultsFMAlternative = modelFM_Alternative.avgCrossvalidation()
+    # # avg = np.mean(resultsFMAlternative)
+    # # resultsFMAlternative.append(avg)
+    # # print("Finish cross validation FM alternative")
+    # # print("Save result on file")
+    # # saveResultsOnFile(resultsFMAlternative, "result_cross_fm.txt")
+    # # print("Completed saving result on file")
     
     # print("Take predictions from CV")
     # print("Divide training set and test set")
