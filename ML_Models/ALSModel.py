@@ -11,6 +11,7 @@ from pyspark.ml import Pipeline
 from pyspark.ml.tuning import CrossValidator, ParamGridBuilder
 import numpy as np
 from Services.configuration import Configuration
+import random
 
 class ALSModel():
     def __init__(self, data):
@@ -74,6 +75,7 @@ class ALSModel():
             self.from_index_to_name(proteins_recommended)
     
     def crossValidation(self):
+        seed = random.randint(1, 100) 
         aus_als = ALS(userCol = "ID_Drug_Index",
                                   itemCol = "ID_Protein_Index", ratingCol = "amount_interactions",coldStartStrategy = "drop")       
         grid = ParamGridBuilder()\

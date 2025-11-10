@@ -179,9 +179,9 @@ def applyCrossValidation():
     print("Saving completed")
 
 
-    # print("Started initialization ALS model")
-    # modelAls = ALSModel(df)
-    # print("Completed initialization ALS model")
+    print("Started initialization ALS model")
+    modelAls = ALSModel(df)
+    print("Completed initialization ALS model")
 
 
     # print("Started initialization FM model with same dataframe of FM model")
@@ -195,7 +195,8 @@ def applyCrossValidation():
     print("Started initialization FM model alternative")
     modelFM_Alternative = FMModel(df,sparkSession ,df_DTI, df_PPI, True)
     print("Completed initialization FM model alternative")
-    modelFM_Alternative.crossValidation()
+    modelAls.avgCrossvalidation()
+    modelFM_Alternative.avgCrossvalidation()
     # prediction_ALS = modelAls.predictionCrossvalidation()
     # prediction_ALS.show(20)
     # prediction_FM = modelFM.predictionCrossvalidation()

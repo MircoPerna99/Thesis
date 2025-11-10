@@ -15,6 +15,7 @@ from pyspark.ml.tuning import CrossValidator, ParamGridBuilder, CrossValidatorMo
 import pandas as pd
 import numpy as np
 from Services.configuration import Configuration
+import random
 
 class FMModel():
     def __init__(self, data, sparkSession, DTI_fm = None, PPI_fm = None, isAlternative = False):
@@ -131,11 +132,11 @@ class FMModel():
 
         # df_inter = self.data.withColumnRenamed("drugId", "drugId_int")
         # df_inter = df_inter.withColumnRenamed("proteinId", "proteinId_int")
-        df_table = self.data.withColumnRenamed("drugId", "drugId_int")
+        df_table = df_table.withColumnRenamed("drugId", "drugId_int")
         df_table = df_table.withColumnRenamed("proteinId", "proteinId_int")
         # df_table = df_table.join(df_inter, df_table.drugId == df_inter.drugId_int)
-        df_table = df_table.join(df_drugs_ps, df_table.drugId_int == df_drugs_ps.drugId_one_hot)
-        df_table = df_table.join(df_target_ps, df_table.proteinId_int == df_target_ps.proteinId_one_hot)
+        df_table = df_target_ps.join(df_table, df_table.proteinId_int == df_target_ps.proteinId_one_hot)
+        df_table = df_drugs_ps.join(df_table, df_table.drugId_int == df_drugs_ps.drugId_one_hot)
         self.data = df_table.orderBy("drugId_int", "proteinId_int")
         self._clean_data()
         self._createFinalDataSet()
@@ -199,8 +200,8 @@ class FMModel():
         # # df_table.show()
         return df_table
 
-    def crossValidation(self):
-        (training, test) = self.data.randomSplit([0.8, 0.2])
+    def crossValidation(self, data = None):
+        seed = random.randint(1, 100) 
         fm = FMRegressor(featuresCol='features', labelCol='amount_interactions')
         grid = ParamGridBuilder()\
                 .addGrid(fm.regParam, self._config['hyperpameters_FM']['regParams'])\
@@ -212,16 +213,15 @@ class FMModel():
         evaluator = RegressionEvaluator(metricName = "rmse", labelCol = "amount_interactions", predictionCol = "prediction")
 
         cv = CrossValidator(estimator=fm, estimatorParamMaps=grid, evaluator=evaluator,parallelism=6, numFolds=5)
-        # if(data == None):
-        #     self.cvModel = cv.fit(self.data)
-        # else:
-        self.cvModel = cv.fit(training)
+        if(data == None):
+            self.cvModel = cv.fit(self.data)
+        else:
+            self.cvModel = cv.fit(data)
+
         self.index_best = np.argmin(self.cvModel.avgMetrics)
         map_hyper = self.cvModel.getEstimatorParamMaps()
         print("The best rmse is:{0}".format(self.cvModel.avgMetrics[ self.index_best]))
         print("The best hyperparameters are:{0}".format(map_hyper[ self.index_best]))
-        prediction = self.cvModel.transform(test)
-        prediction.orderBy("amount_interactions", ascending=[False]).show()
         return self.cvModel.avgMetrics[ self.index_best]
 
     def avgCrossvalidation(self):
