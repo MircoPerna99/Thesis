@@ -21,7 +21,7 @@
     "nameFileResultALS": "als_result_seed.txt",
     "nameFileResultFM": "fm_result_seed.txt",
     "proteinsToAnalyse" : [ "P41279"
-                            ,"Q96N67"],
+                            ],
     "PPIWeighted": false,
     "PPINotFiltered": false,
     "showGraph": false,

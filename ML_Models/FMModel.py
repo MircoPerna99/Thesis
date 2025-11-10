@@ -23,9 +23,9 @@ class FMModel():
         self.data = data
         self._config = Configuration()
         if(isAlternative):
-            self.createMatrix_final()
+            self.createMatrixAlternative(DTI_fm,PPI_fm)
         else:
-            self.createMatrix()
+            self.createMatrix_final()
 
     def _createOneHotCodeDF(self, isDrug : bool):
         if(isDrug):
@@ -79,16 +79,17 @@ class FMModel():
         df_inter = self.data.withColumnRenamed("drugId", "drugId_int")
         df_inter = df_inter.withColumnRenamed("proteinId", "proteinId_int")
 
-        DTI_fm = self._addSuffixToColumns("_DTI","drugId",DTI_fm)
-        PPI_fm = self._addSuffixToColumns("_PPI","proteinId",PPI_fm)
+        DTI_fm = self._addSuffixToColumns("_DTI","drugId", DTI_fm)
+        PPI_fm = self._addSuffixToColumns("_PPI","proteinId", PPI_fm)
 
         DTI_fm = DTI_fm.orderBy("drugId")
         PPI_fm = PPI_fm.orderBy("proteinId")
-        df_table = df_inter.join(DTI_fm, DTI_fm.drugId == df_inter.drugId_int)
-        df_table = df_table.join(PPI_fm, PPI_fm.proteinId == df_inter.proteinId_int)
+        df_table = DTI_fm.join(df_inter, DTI_fm.drugId == df_inter.drugId_int)
+        df_table = PPI_fm.join(df_table, PPI_fm.proteinId == df_table.proteinId_int)
         # df_table = df_table.join(df_drugs_ps, df_table.drugId_int == df_drugs_ps.drugId_one_hot)
         # df_table = df_table.join(df_target_ps, df_table.proteinId_int == df_target_ps.proteinId_one_hot)
         self.data = df_table.orderBy("drugId_int", "proteinId_int")
+        self.data.show(2)
         self._clean_data()
         print("Save result on file")
         self.data.write.mode("overwrite").option("header", True).csv("ML_Models/dataset")
@@ -201,7 +202,6 @@ class FMModel():
         return df_table
 
     def crossValidation(self, data = None):
-        seed = random.randint(1, 100) 
         fm = FMRegressor(featuresCol='features', labelCol='amount_interactions')
         grid = ParamGridBuilder()\
                 .addGrid(fm.regParam, self._config['hyperpameters_FM']['regParams'])\

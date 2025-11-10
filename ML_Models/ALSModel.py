@@ -75,7 +75,6 @@ class ALSModel():
             self.from_index_to_name(proteins_recommended)
     
     def crossValidation(self):
-        seed = random.randint(1, 100) 
         aus_als = ALS(userCol = "ID_Drug_Index",
                                   itemCol = "ID_Protein_Index", ratingCol = "amount_interactions",coldStartStrategy = "drop")       
         grid = ParamGridBuilder()\
@@ -95,7 +94,7 @@ class ALSModel():
         print("The best hyperparameters are:{0}".format(map_hyper[index_best]))
         return self.cvModel.avgMetrics[index_best]
         
-    def avgCrossvalidation(self):
+    def avgCrossValidation(self):
         avgMetrics = []
         for i in range(10):
             result = self.crossValidation()
