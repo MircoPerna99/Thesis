@@ -58,6 +58,13 @@ class ALSModel():
                     print("For regParam: {0}, rank:{1}, alpha:{2}, RMSE:{3}".format(regParam, rank, alpha, rmse))
                      
         print("Chosen parameters: regParam: {0}, rank:{1}, alpha:{2}, RMSE:{3}".format(self.aus_regParam, self.aus_rank, self.aus_alpha, self.aus_rmse))          
+        predictionsTraining = self.model.transform(training)
+        predictionsTest = self.model.transform(test)
+        test.select("amount_interactions").orderBy("amount_interactions", ascending=[False]).show()
+        evaluator = RegressionEvaluator(metricName = "rmse", labelCol = "amount_interactions", predictionCol = "prediction")
+        print(evaluator.evaluate(predictionsTraining))
+        print(evaluator.evaluate(predictionsTest))
+
 
     def from_index_to_name(self, proteins_recommended):
             drug_name = IndexToString(inputCol = "ID_Drug_Index", outputCol = "drugId", labels = self.drug_indexer.labels)
@@ -106,3 +113,29 @@ class ALSModel():
         df_prediction = self.data.orderBy("amount_interactions", ascending=[False]).limit(20)
         self.crossValidation()
         return self.cvModel.transform(df_prediction)
+
+    def crossValidationWithTest(self):
+        (training, test) = self.data.randomSplit([0.8, 0.2])
+       
+        aus_als = ALS(userCol = "ID_Drug_Index",
+                                  itemCol = "ID_Protein_Index", ratingCol = "amount_interactions",coldStartStrategy = "drop")       
+        grid = ParamGridBuilder()\
+                .addGrid(aus_als.regParam, self._confing['hyperpameters_ALS']['regParams'])\
+                .addGrid(aus_als.rank, self._confing['hyperpameters_ALS']['ranks'])\
+                .addGrid(aus_als.alpha, self._confing['hyperpameters_ALS']['alphas'])\
+                .addGrid(aus_als.maxIter, self._confing['hyperpameters_ALS']['maxIter'])\
+                .build()
+        
+        evaluator = RegressionEvaluator(metricName = "rmse", labelCol = "amount_interactions", predictionCol = "prediction")
+        
+        cv = CrossValidator(estimator=aus_als, estimatorParamMaps=grid, evaluator=evaluator,parallelism=1, numFolds=5)
+        self.cvModel = cv.fit(self.data)
+        index_best = np.argmin(self.cvModel.avgMetrics)
+        map_hyper = self.cvModel.getEstimatorParamMaps()                       
+        print("The best rmse is:{0}".format(self.cvModel.avgMetrics[index_best]))
+        print("The best hyperparameters are:{0}".format(map_hyper[index_best]))
+        predictionsTraining = self.cvModel.transform(training)
+        predictionsTest = self.cvModel.transform(test)
+        test.select("amount_interactions").orderBy("amount_interactions", ascending=[False]).show()
+        print(evaluator.evaluate(predictionsTraining))
+        print(evaluator.evaluate(predictionsTest))

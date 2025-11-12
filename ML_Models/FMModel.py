@@ -177,7 +177,13 @@ class FMModel():
                         print("For regParam: {0}, maxIter:{1}, initStd:{2},factorSize:{3} , RMSE:{4}".format(regParam, maxIter, initStd, factorSize,rmse))
 
         print("Chosen parameters: regParam: {0}, maxIter:{1}, initStd:{2},factorSize:{3}, RMSE:{4}".format(self.aus_regParam, self.aus_maxIter, self.aus_initStd,self.aus_factorSize, self.aus_rmse))
-
+        predictionsTraining = self.model.transform(training)
+        predictionsTest = self.model.transform(test)
+        test.select("amount_interactions").orderBy("amount_interactions", ascending=[False]).show()
+        evaluator = RegressionEvaluator(metricName = "rmse", labelCol = "amount_interactions", predictionCol = "prediction")
+        print(evaluator.evaluate(predictionsTraining))
+        print(evaluator.evaluate(predictionsTest))
+        
     ## da vedere
     def dataframeOthersInteraction(self):
         df_table = self.data.orderBy("drugId").groupBy("drugId").pivot("proteinId").agg(F.first("amount_interactions")).fillna(0)
@@ -201,7 +207,7 @@ class FMModel():
         # # df_table.show()
         return df_table
 
-    def crossValidation(self, data = None):
+    def crossValidation(self):
         fm = FMRegressor(featuresCol='features', labelCol='amount_interactions')
         grid = ParamGridBuilder()\
                 .addGrid(fm.regParam, self._config['hyperpameters_FM']['regParams'])\
@@ -213,10 +219,8 @@ class FMModel():
         evaluator = RegressionEvaluator(metricName = "rmse", labelCol = "amount_interactions", predictionCol = "prediction")
 
         cv = CrossValidator(estimator=fm, estimatorParamMaps=grid, evaluator=evaluator,parallelism=6, numFolds=5)
-        if(data == None):
-            self.cvModel = cv.fit(self.data)
-        else:
-            self.cvModel = cv.fit(data)
+
+        self.cvModel = cv.fit(self.data)
 
         self.index_best = np.argmin(self.cvModel.avgMetrics)
         map_hyper = self.cvModel.getEstimatorParamMaps()
@@ -237,3 +241,31 @@ class FMModel():
         self.crossValidation()
 
         return self.cvModel.transform(df_prediction)
+    
+    
+    def crossValidationWithTest(self):
+        (training, test) = self.data.randomSplit([0.8, 0.2])
+
+        fm = FMRegressor(featuresCol='features', labelCol='amount_interactions')
+        grid = ParamGridBuilder()\
+                .addGrid(fm.regParam, self._config['hyperpameters_FM']['regParams'])\
+                .addGrid(fm.maxIter, self._config['hyperpameters_FM']['maxIters'])\
+                .addGrid(fm.initStd, self._config['hyperpameters_FM']['initStds'])\
+                .addGrid(fm.factorSize, self._config['hyperpameters_FM']['factorSizes'] )\
+                .build()
+
+        evaluator = RegressionEvaluator(metricName = "rmse", labelCol = "amount_interactions", predictionCol = "prediction")
+
+        cv = CrossValidator(estimator=fm, estimatorParamMaps=grid, evaluator=evaluator,parallelism=6, numFolds=5)
+
+        self.cvModel = cv.fit(training)
+
+        self.index_best = np.argmin(self.cvModel.avgMetrics)
+        map_hyper = self.cvModel.getEstimatorParamMaps()
+        print("The best rmse is:{0}".format(self.cvModel.avgMetrics[ self.index_best]))
+        print("The best hyperparameters are:{0}".format(map_hyper[ self.index_best]))
+        predictionsTraining = self.cvModel.transform(training)
+        predictionsTest = self.cvModel.transform(test)
+        test.select("amount_interactions").orderBy("amount_interactions", ascending=[False]).show()
+        print(evaluator.evaluate(predictionsTraining))
+        print(evaluator.evaluate(predictionsTest))

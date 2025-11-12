@@ -71,17 +71,17 @@ def applyAnlyses():
     saveDataframeOnCSV(df_PPI, config['nameFilePPI'])
     print("Saving completed")
 
-    # print("Started initialization ALS model")
-    # modelAls = ALSModel(df)
-    # print("Completed initialization ALS model")
+    print("Started initialization ALS model")
+    modelAls = ALSModel(df)
+    print("Completed initialization ALS model")
 
 
-    print("Started initialization FM model with same dataframe of ALS model")
-    modelFM = FMModel(df, sparkSession)
-    print("Completed initialization FM model with same dataframe of ALS model")
-    # print("Started initialization FM model alternative")
-    # modelFM_Alternative = FMModel(df,sparkSession ,df_DTI, df_PPI, True)
-    # print("Completed initialization FM model alternative")
+    # print("Started initialization FM model with same dataframe of ALS model")
+    # modelFM = FMModel(df, sparkSession)
+    # print("Completed initialization FM model with same dataframe of ALS model")
+    print("Started initialization FM model alternative")
+    modelFM_Alternative = FMModel(df,sparkSession ,df_DTI, df_PPI, True)
+    print("Completed initialization FM model alternative")
 
     # print("Started analys with 10 different seed for create the dataset")
     seeds = random.sample(range(1, 101), config['amountOfSeed'])
@@ -91,13 +91,13 @@ def applyAnlyses():
 
     for seed in seeds:
         print("Analyses for seed:{0}".format(seed))
-        # modelAls.train(seed)
+        modelAls.train(seed)
         # resultAls.append("Chosen parameters for seed{4}: regParam: {0}, rank:{1}, alpha:{2}, RMSE:{3}".format(modelAls.aus_regParam, modelAls.aus_rank, modelAls.aus_alpha, modelAls.aus_rmse,seed))  
         
-        modelFM.train(seed)
-        resultsFM.append("Chosen parameters for FM and for seed {5}: regParam: {0}, maxIter:{1}, initStd:{2},factorSize:{3}, RMSE:{4}".format(modelFM.aus_regParam, modelFM.aus_maxIter, modelFM.aus_initStd,modelFM.aus_factorSize, modelFM.aus_rmse,seed))
+        # modelFM.train(seed)
+        # resultsFM.append("Chosen parameters for FM and for seed {5}: regParam: {0}, maxIter:{1}, initStd:{2},factorSize:{3}, RMSE:{4}".format(modelFM.aus_regParam, modelFM.aus_maxIter, modelFM.aus_initStd,modelFM.aus_factorSize, modelFM.aus_rmse,seed))
 
-        # modelFM_Alternative.train(seed)
+        modelFM_Alternative.train(seed)
         # resultsFMAlternative.append("Chosen parameters for FM alternartive{5}: regParam: {0}, maxIter:{1}, initStd:{2},factorSize:{3}, RMSE:{4}".format(modelFM_Alternative.aus_regParam, modelFM_Alternative.aus_maxIter, modelFM_Alternative.aus_initStd,modelFM_Alternative.aus_factorSize, modelFM_Alternative.aus_rmse,seed))
         # print("Completed for seed:{0}".format(seed))
 
@@ -196,18 +196,20 @@ def applyCrossValidation():
     modelFM_Alternative = FMModel(df,sparkSession ,df_DTI, df_PPI, True)
     print("Completed initialization FM model alternative")
     
-    
+    modelAls.crossValidationWithTest()
+    modelFM_Alternative_weigth.crossValidationWithTest()
+    modelFM_Alternative.crossValidationWithTest()
     
     # resultAls = []
 
-    print("Start cross validation ALS")
-    resultAls = modelAls.avgCrossValidation()
-    avg = np.mean(resultAls)
-    resultAls.append("The mean is:{0}".format(avg))
-    print("Finish cross validation ALS")
-    print("Save result on file")
-    saveResultsOnFile(resultAls, "result_cross_als.txt")
-    print("Completed saving result on file")
+    # print("Start cross validation ALS")
+    # resultAls = modelAls.avgCrossValidation()
+    # avg = np.mean(resultAls)
+    # resultAls.append("The mean is:{0}".format(avg))
+    # print("Finish cross validation ALS")
+    # print("Save result on file")
+    # saveResultsOnFile(resultAls, "result_cross_als.txt")
+    # print("Completed saving result on file")
     
     
     # results = []
@@ -229,15 +231,15 @@ def applyCrossValidation():
     # saveResultsOnFile(results, "results_FM")
     # print("Completed result on file")
     
-    resultsFMAlternativeWeight = []
-    print("Start cross validation FM alternative")
-    resultsFMAlternativeWeight = modelFM_Alternative_weigth.avgCrossvalidation()
-    avg = np.mean(resultsFMAlternativeWeight)
-    resultsFMAlternativeWeight.append(avg)
-    print("Finish cross validation FM alternative weight")
-    print("Save result on file")
-    saveResultsOnFile(resultsFMAlternativeWeight, "result_cross_fm_weight.txt")
-    print("Completed saving result on file")
+    # resultsFMAlternativeWeight = []
+    # print("Start cross validation FM alternative")
+    # resultsFMAlternativeWeight = modelFM_Alternative_weigth.avgCrossvalidation()
+    # avg = np.mean(resultsFMAlternativeWeight)
+    # resultsFMAlternativeWeight.append(avg)
+    # print("Finish cross validation FM alternative weight")
+    # print("Save result on file")
+    # saveResultsOnFile(resultsFMAlternativeWeight, "result_cross_fm_weight.txt")
+    # print("Completed saving result on file")
     
     # print("Start cross validation FM alternative weight")
     # modelFM_Alternative_weigth.crossValidation()
@@ -260,14 +262,14 @@ def applyCrossValidation():
     # print("Save result on file")
     # saveResultsOnFile(resultsFMAlternative, "resultsFMAlternative")
     # print("Completed result on file")
-    print("Start cross validation FM alternative")
-    resultsFMAlternative = modelFM_Alternative.avgCrossvalidation()
-    avg = np.mean(resultsFMAlternative)
-    resultsFMAlternative.append(avg)
-    print("Finish cross validation FM alternative")
-    print("Save result on file")
-    saveResultsOnFile(resultsFMAlternative, "result_cross_fm.txt")
-    print("Completed saving result on file")
+    # print("Start cross validation FM alternative")
+    # resultsFMAlternative = modelFM_Alternative.avgCrossvalidation()
+    # avg = np.mean(resultsFMAlternative)
+    # resultsFMAlternative.append(avg)
+    # print("Finish cross validation FM alternative")
+    # print("Save result on file")
+    # saveResultsOnFile(resultsFMAlternative, "result_cross_fm.txt")
+    # print("Completed saving result on file")
     
     # print("Take predictions from CV")
     # print("Divide training set and test set")
