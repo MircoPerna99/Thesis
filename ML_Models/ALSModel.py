@@ -12,6 +12,8 @@ from pyspark.ml.tuning import CrossValidator, ParamGridBuilder
 import numpy as np
 from Services.configuration import Configuration
 import random
+import time
+
 
 class ALSModel():
     def __init__(self, data):
@@ -129,7 +131,9 @@ class ALSModel():
         evaluator = RegressionEvaluator(metricName = "rmse", labelCol = "amount_interactions", predictionCol = "prediction")
         
         cv = CrossValidator(estimator=aus_als, estimatorParamMaps=grid, evaluator=evaluator,parallelism=1, numFolds=5)
+        start_time = time.time()
         self.cvModel = cv.fit(self.data)
+        print("--- %s seconds ---" % (time.time() - start_time))
         index_best = np.argmin(self.cvModel.avgMetrics)
         map_hyper = self.cvModel.getEstimatorParamMaps()                       
         print("The best rmse is:{0}".format(self.cvModel.avgMetrics[index_best]))
@@ -137,5 +141,7 @@ class ALSModel():
         predictionsTraining = self.cvModel.transform(training)
         predictionsTest = self.cvModel.transform(test)
         test.select("amount_interactions").orderBy("amount_interactions", ascending=[False]).show()
+        predictionsTraining.orderBy("amount_interactions", ascending=[False]).show()
+        predictionsTest.orderBy("amount_interactions", ascending=[False]).show()
         print(evaluator.evaluate(predictionsTraining))
         print(evaluator.evaluate(predictionsTest))

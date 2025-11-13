@@ -288,9 +288,9 @@ def applyCrossValidation():
     
 def calculateDictionaryFrequency(dict : dict):
     dictToReturn = {}
-    amountKeys = sum(dict.values())
+    amountValue = sum(dict.values())
     for key in dict.keys():
-       dictToReturn[key] =  float(dict[key]/amountKeys)
+       dictToReturn[key] =  float(dict[key]/amountValue)
     return dictToReturn
 
 def calculateDictionaryAmountDegree(dict : dict):

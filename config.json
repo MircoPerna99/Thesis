@@ -2,16 +2,16 @@
     "amountOfSeed":5,
     "connection_string_mongo": "mongodb://localhost:27017/",
     "hyperpameters_ALS" : {
-        "maxIter": [10, 20,30],
-        "regParams" : [0.01, 0.1],
-        "ranks" : [25,30,35],
-        "alphas" : [10.0, 20.0, 40.0, 60.0, 80.0, 100.0]
+        "maxIter": [30],
+        "regParams" : [0.1],
+        "ranks" : [25,30],
+        "alphas" : [10.0]
     },
     "hyperpameters_FM" : {
-        "regParams" : [0.01,0.1],
-        "maxIters" : [100,200,500],
+        "regParams" : [0.01],
+        "maxIters" : [500],
         "initStds" : [0.1],
-        "factorSizes" : [2,4,8]
+        "factorSizes" : [2]
     },
     "nameFileAmountInteractions": "interactions_DP",
     "nameFileDTI": "DTI",

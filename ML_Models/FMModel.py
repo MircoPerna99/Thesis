@@ -16,6 +16,7 @@ import pandas as pd
 import numpy as np
 from Services.configuration import Configuration
 import random
+import time
 
 class FMModel():
     def __init__(self, data, sparkSession, DTI_fm = None, PPI_fm = None, isAlternative = False):
@@ -257,9 +258,9 @@ class FMModel():
         evaluator = RegressionEvaluator(metricName = "rmse", labelCol = "amount_interactions", predictionCol = "prediction")
 
         cv = CrossValidator(estimator=fm, estimatorParamMaps=grid, evaluator=evaluator,parallelism=6, numFolds=5)
-
+        start_time = time.time()
         self.cvModel = cv.fit(training)
-
+        print("--- %s seconds ---" % (time.time() - start_time))
         self.index_best = np.argmin(self.cvModel.avgMetrics)
         map_hyper = self.cvModel.getEstimatorParamMaps()
         print("The best rmse is:{0}".format(self.cvModel.avgMetrics[ self.index_best]))
@@ -267,5 +268,7 @@ class FMModel():
         predictionsTraining = self.cvModel.transform(training)
         predictionsTest = self.cvModel.transform(test)
         test.select("amount_interactions").orderBy("amount_interactions", ascending=[False]).show()
+        predictionsTraining.orderBy("amount_interactions", ascending=[False]).show()
+        predictionsTest.orderBy("amount_interactions", ascending=[False]).show()
         print(evaluator.evaluate(predictionsTraining))
         print(evaluator.evaluate(predictionsTest))
