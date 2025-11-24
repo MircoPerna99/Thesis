@@ -17,7 +17,7 @@ import time
 
 class ALSModel():
     def __init__(self, data):
-        self._confing = Configuration()
+        self._config = Configuration()
         self.indexing_name(data)
         
     def indexing_name(self,data):
@@ -26,12 +26,31 @@ class ALSModel():
         pipeline = Pipeline(stages = [self.drug_indexer, self.prontein_indexer])
         self.data = pipeline.fit(data).transform(data)
     
-    def train(self, seed = 42):
-        (training, test) = self.data.randomSplit([0.8, 0.2], seed=seed)
+    def _defineSets(self, test, training, seed):
+        if(test == None and training == None):
+            return self.data.randomSplit([0.8, 0.2], seed=seed)
+        else:
+            training = self.data.join(training, on=["drugId", "proteinId"], how="semi")
+            test = self.data.join(test, on=["drugId", "proteinId"], how="semi")
 
-        regParams = self._confing['hyperpameters_ALS']['regParams']
-        ranks = self._confing['hyperpameters_ALS']['ranks']
-        alphas = self._confing['hyperpameters_ALS']['alphas']
+            return (training, test)
+    
+    def _compareTrainingTest(self, model, test, training): 
+        predictionsTraining = model.transform(training)
+        predictionsTraining.orderBy("amount_interactions", ascending=[False]).show()
+        predictionsTest = model.transform(test)
+        predictionsTest.orderBy("amount_interactions", ascending=[False]).show()
+        evaluator = RegressionEvaluator(metricName = "rmse", labelCol = "amount_interactions", predictionCol = "prediction")
+           
+        print(evaluator.evaluate(predictionsTraining))
+        print(evaluator.evaluate(predictionsTest))
+    
+    def train(self, test = None , training = None, seed = 42):
+        (training, test) = self._defineSets(test, training,seed)
+            
+        regParams = self._config['hyperpameters_ALS']['regParams']
+        ranks = self._config['hyperpameters_ALS']['ranks']
+        alphas = self._config['hyperpameters_ALS']['alphas']
 
         self.aus_regParam = 0.0
         self.aus_rank = 0
@@ -44,7 +63,10 @@ class ALSModel():
                     aus_als = ALS(maxIter = 10, regParam = regParam, rank = rank, alpha = alpha, userCol = "ID_Drug_Index",
                                   itemCol = "ID_Protein_Index", ratingCol = "amount_interactions",coldStartStrategy = "drop")
                     
+                    start_time = time.time()
                     aus_model = aus_als.fit(training)
+                    print("--- Time required %s seconds ---" % (time.time() - start_time))
+
                     predictions = aus_model.transform(test)
                     evaluator = RegressionEvaluator(metricName = "rmse", labelCol = "amount_interactions", predictionCol = "prediction")
                     rmse = evaluator.evaluate(predictions)
@@ -60,12 +82,9 @@ class ALSModel():
                     print("For regParam: {0}, rank:{1}, alpha:{2}, RMSE:{3}".format(regParam, rank, alpha, rmse))
                      
         print("Chosen parameters: regParam: {0}, rank:{1}, alpha:{2}, RMSE:{3}".format(self.aus_regParam, self.aus_rank, self.aus_alpha, self.aus_rmse))          
-        predictionsTraining = self.model.transform(training)
-        predictionsTest = self.model.transform(test)
-        test.select("amount_interactions").orderBy("amount_interactions", ascending=[False]).show()
-        evaluator = RegressionEvaluator(metricName = "rmse", labelCol = "amount_interactions", predictionCol = "prediction")
-        print(evaluator.evaluate(predictionsTraining))
-        print(evaluator.evaluate(predictionsTest))
+        
+        if(self._config['toCompareTrainingTest']):
+            self._compareTrainingTest(self.model, test, training)
 
 
     def from_index_to_name(self, proteins_recommended):
@@ -83,14 +102,17 @@ class ALSModel():
                                                             .select("ID_Drug_Index", "proteinAndRating.*")
             self.from_index_to_name(proteins_recommended)
     
-    def crossValidation(self):
+    def crossValidation(self , dataset = None):
+        if(dataset == None):
+            dataset = self.data
+            
         aus_als = ALS(userCol = "ID_Drug_Index",
                                   itemCol = "ID_Protein_Index", ratingCol = "amount_interactions",coldStartStrategy = "drop")       
         grid = ParamGridBuilder()\
-                .addGrid(aus_als.regParam, self._confing['hyperpameters_ALS']['regParams'])\
-                .addGrid(aus_als.rank, self._confing['hyperpameters_ALS']['ranks'])\
-                .addGrid(aus_als.alpha, self._confing['hyperpameters_ALS']['alphas'])\
-                .addGrid(aus_als.maxIter, self._confing['hyperpameters_ALS']['maxIter'])\
+                .addGrid(aus_als.regParam, self._config['hyperpameters_ALS']['regParams'])\
+                .addGrid(aus_als.rank, self._config['hyperpameters_ALS']['ranks'])\
+                .addGrid(aus_als.alpha, self._config['hyperpameters_ALS']['alphas'])\
+                .addGrid(aus_als.maxIter, self._config['hyperpameters_ALS']['maxIter'])\
                 .build()
         
         evaluator = RegressionEvaluator(metricName = "rmse", labelCol = "amount_interactions", predictionCol = "prediction")
@@ -101,47 +123,11 @@ class ALSModel():
         map_hyper = self.cvModel.getEstimatorParamMaps()                       
         print("The best rmse is:{0}".format(self.cvModel.avgMetrics[index_best]))
         print("The best hyperparameters are:{0}".format(map_hyper[index_best]))
-        return self.cvModel.avgMetrics[index_best]
-        
-    def avgCrossValidation(self):
-        avgMetrics = []
-        for i in range(10):
-            result = self.crossValidation()
-            avgMetrics.append(result)
-        
-        return avgMetrics
-    
-    def predictionCrossvalidation(self):
-        df_prediction = self.data.orderBy("amount_interactions", ascending=[False]).limit(20)
-        self.crossValidation()
-        return self.cvModel.transform(df_prediction)
 
-    def crossValidationWithTest(self):
-        (training, test) = self.data.randomSplit([0.8, 0.2])
+    def crossValidationWithTest(self, test = None , training = None):
+        (training, test) = self._defineSets(test, training, 42) 
        
-        aus_als = ALS(userCol = "ID_Drug_Index",
-                                  itemCol = "ID_Protein_Index", ratingCol = "amount_interactions",coldStartStrategy = "drop")       
-        grid = ParamGridBuilder()\
-                .addGrid(aus_als.regParam, self._confing['hyperpameters_ALS']['regParams'])\
-                .addGrid(aus_als.rank, self._confing['hyperpameters_ALS']['ranks'])\
-                .addGrid(aus_als.alpha, self._confing['hyperpameters_ALS']['alphas'])\
-                .addGrid(aus_als.maxIter, self._confing['hyperpameters_ALS']['maxIter'])\
-                .build()
+        self.crossValidation(training)
         
-        evaluator = RegressionEvaluator(metricName = "rmse", labelCol = "amount_interactions", predictionCol = "prediction")
-        
-        cv = CrossValidator(estimator=aus_als, estimatorParamMaps=grid, evaluator=evaluator,parallelism=1, numFolds=5)
-        start_time = time.time()
-        self.cvModel = cv.fit(self.data)
-        print("--- %s seconds ---" % (time.time() - start_time))
-        index_best = np.argmin(self.cvModel.avgMetrics)
-        map_hyper = self.cvModel.getEstimatorParamMaps()                       
-        print("The best rmse is:{0}".format(self.cvModel.avgMetrics[index_best]))
-        print("The best hyperparameters are:{0}".format(map_hyper[index_best]))
-        predictionsTraining = self.cvModel.transform(training)
-        predictionsTest = self.cvModel.transform(test)
-        test.select("amount_interactions").orderBy("amount_interactions", ascending=[False]).show()
-        predictionsTraining.orderBy("amount_interactions", ascending=[False]).show()
-        predictionsTest.orderBy("amount_interactions", ascending=[False]).show()
-        print(evaluator.evaluate(predictionsTraining))
-        print(evaluator.evaluate(predictionsTest))
+        if(self._config['toCompareTrainingTestCV']):
+            self._compareTrainingTest(self.cvModel, test, training)

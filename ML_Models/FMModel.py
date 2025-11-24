@@ -217,15 +217,7 @@ class FMModel():
         self.index_best = np.argmin(self.cvModel.avgMetrics)
         map_hyper = self.cvModel.getEstimatorParamMaps()
         print("The best rmse is:{0}".format(self.cvModel.avgMetrics[ self.index_best]))
-        print("The best hyperparameters are:{0}".format(map_hyper[ self.index_best]))
-
-    def avgCrossvalidation(self):
-        avgMetrics = []
-        for i in range(10):
-            result = self.crossValidation()
-            avgMetrics.append(result)
-
-        return avgMetrics    
+        print("The best hyperparameters are:{0}".format(map_hyper[ self.index_best]))   
     
     def crossValidationWithTest(self,test = None , training = None):
         (training, test) = self._defineSets(test, training,42) 

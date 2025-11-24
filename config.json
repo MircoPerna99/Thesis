@@ -25,7 +25,9 @@
     "PPINotFiltered": false,
     "showGraph": false,
     "takeAllProtein" : false,
-    "takeDataFromFile" : true
+    "takeDataFromFile" : true,
+    "toCompareTrainingTest":true,
+    "toCompareTrainingTestCV":true
 }
 
 
