@@ -22,12 +22,16 @@ class Analyzer():
         self.FMModel : FMModel = None
     
     def _saveDataframeOnCSV(self,df, nameFile):
+        print("Save {0} on file".format(nameFile))
         df.write.mode("overwrite").option("header", True).csv("ML_Models/"+nameFile)
-
-    def _saveResultsOnFile(self,list, file_name):
-        with open("ML_Models/"+file_name, 'w') as f:
+        print("Saving completed")
+    
+    def _saveResultsOnFile(self,list, nameFile):
+        print("Save {0} on file".format(nameFile))
+        with open("ML_Models/"+nameFile, 'w') as f:
             for item in list:
                 f.write(f"{item}\n")
+        print("Saving completed")
     
     def _initProperties(self):
         print("Initialization of config")
@@ -62,21 +66,20 @@ class Analyzer():
         self.amountInteraction = self.dataset.getDTAmountInteractions()
         print("Completed elaboration amount interactions")
 
-        
-        print("Save amount interactions on file")
-        result = (self.amountInteraction.orderBy("drugId").groupBy("drugId").pivot("proteinId").agg(F.first("amount_interactions")).fillna(0))
-        self._saveDataframeOnCSV(result, self.config['nameFileAmountInteractions'])
-        print("Saving completed")
-
-        print("Save DTI on file")
+        print("Start getting DTI")
         self.df_DTI = self.dataset.getDTInteractionsTable()
-        self._saveDataframeOnCSV(self.df_DTI, self.config['nameFileDTI'])
-        print("Saving completed")
+        print("Operation completed")
 
-        print("Save PPI on file")
+        print("Start getting PPI")
         self.df_PPI = self.dataset.getPPInteractionsTable(weight=self.config['PPIWeighted'], noFilter=self.config['PPINotFiltered'])
-        self._saveDataframeOnCSV(self.df_PPI, self.config['nameFilePPI'])
-        print("Saving completed")
+        print("Operation completed")
+        
+        if(self.config["saveDataOnFile"]):
+            result = (self.amountInteraction.orderBy("drugId").groupBy("drugId").pivot("proteinId").agg(F.first("amount_interactions")).fillna(0))
+            self._saveDataframeOnCSV(result, self.config['nameFileAmountInteractions'])
+            self._saveDataframeOnCSV(self.df_DTI, self.config['nameFileDTI'])
+            self._saveDataframeOnCSV(self.df_PPI, self.config['nameFilePPI'])
+
     
     def initALSModel(self):
         print("Started initialization ALS model")

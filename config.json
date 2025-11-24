@@ -24,6 +24,7 @@
     "proteinsToAnalyse" : [ "P41279"],
     "PPIWeighted": false,
     "PPINotFiltered": false,
+    "saveDataOnFile": false,
     "showGraph": false,
     "takeAllProtein" : false,
     "takeDataFromFile" : true,
