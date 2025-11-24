@@ -13,6 +13,7 @@
         "initStds" : [0.1],
         "factorSizes" : [2]
     },
+    "isInteractionsMatrix" : true,
     "nameFileAmountInteractions": "interactions_DP",
     "nameFileDTI": "DTI",
     "nameFilePredictionsALS": "PredictionsALS",

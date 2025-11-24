@@ -19,12 +19,12 @@ import random
 import time
 
 class FMModel():
-    def __init__(self, data, sparkSession, DTI_fm = None, PPI_fm = None, isAlternative = False):
+    def __init__(self, data, sparkSession, DTI_fm = None, PPI_fm = None, isInteractionsMatrix = False):
         self.saveMatrixOnFile = False
         self.spark = sparkSession
         self.data = data
         self._config = Configuration()
-        if(isAlternative):
+        if(isInteractionsMatrix):
             self.createInteractionsMatrix(DTI_fm,PPI_fm)
         else:
             self.createFeedbackMatrix()

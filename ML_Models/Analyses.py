@@ -70,15 +70,18 @@ def applyAnlyses():
     df_PPI = dataset.getPPInteractionsTable(weight=config['PPIWeighted'], noFilter=config['PPINotFiltered'])
     saveDataframeOnCSV(df_PPI, config['nameFilePPI'])
     print("Saving completed")
+    
+    df_PPI_weigth = dataset.getPPInteractionsTable(weight=True, noFilter=config['PPINotFiltered'])
 
     print("Started initialization ALS model")
     modelAls = ALSModel(df)
     print("Completed initialization ALS model")
 
 
-    # print("Started initialization FM model with same dataframe of ALS model")
-    # modelFM = FMModel(df, sparkSession)
-    # print("Completed initialization FM model with same dataframe of ALS model")
+    print("Started initialization FM model alternative weight")
+    modelFM_Alternative_weigth = FMModel(df,sparkSession ,df_DTI, df_PPI_weigth, True)
+    print("Completed initialization FM model alternative weight")
+
     print("Started initialization FM model alternative")
     modelFM_Alternative = FMModel(df,sparkSession ,df_DTI, df_PPI, True)
     print("Completed initialization FM model alternative")
@@ -90,14 +93,15 @@ def applyAnlyses():
     #resultsFMAlternative = []
 
     for seed in seeds:
+        df.groupBy("amount_interactions").count().show()
+        (training, test) = df.randomSplit([0.8, 0.2], seed=seed)
         print("Analyses for seed:{0}".format(seed))
-        modelAls.train(seed)
+        modelAls.train(training=training, test = test, seed=seed)
         # resultAls.append("Chosen parameters for seed{4}: regParam: {0}, rank:{1}, alpha:{2}, RMSE:{3}".format(modelAls.aus_regParam, modelAls.aus_rank, modelAls.aus_alpha, modelAls.aus_rmse,seed))  
-        
         # modelFM.train(seed)
         # resultsFM.append("Chosen parameters for FM and for seed {5}: regParam: {0}, maxIter:{1}, initStd:{2},factorSize:{3}, RMSE:{4}".format(modelFM.aus_regParam, modelFM.aus_maxIter, modelFM.aus_initStd,modelFM.aus_factorSize, modelFM.aus_rmse,seed))
-
-        modelFM_Alternative.train(seed)
+        modelFM_Alternative_weigth.train(training=training, test = test, seed=seed)
+        modelFM_Alternative.train(training=training, test = test, seed=seed)
         # resultsFMAlternative.append("Chosen parameters for FM alternartive{5}: regParam: {0}, maxIter:{1}, initStd:{2},factorSize:{3}, RMSE:{4}".format(modelFM_Alternative.aus_regParam, modelFM_Alternative.aus_maxIter, modelFM_Alternative.aus_initStd,modelFM_Alternative.aus_factorSize, modelFM_Alternative.aus_rmse,seed))
         # print("Completed for seed:{0}".format(seed))
 
