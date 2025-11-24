@@ -1,10 +1,10 @@
 {
-    "amountOfSeed":5,
+    "amountOfSeed":1,
     "connection_string_mongo": "mongodb://localhost:27017/",
     "hyperpameters_ALS" : {
         "maxIter": [30],
         "regParams" : [0.1],
-        "ranks" : [25,30],
+        "ranks" : [30],
         "alphas" : [10.0]
     },
     "hyperpameters_FM" : {
@@ -20,8 +20,7 @@
     "nameFilePPI": "PPI",
     "nameFileResultALS": "als_result_seed.txt",
     "nameFileResultFM": "fm_result_seed.txt",
-    "proteinsToAnalyse" : [ "P41279"
-                            ],
+    "proteinsToAnalyse" : [ "P41279"],
     "PPIWeighted": false,
     "PPINotFiltered": false,
     "showGraph": false,

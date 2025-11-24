@@ -49,7 +49,7 @@ class Graph():
             target_nodes = list(dfDTI["proteinId"].unique())
             target_nodes.extend(list(dfPPI["proteinAId"].unique()))
             target_nodes.extend(list(dfPPI["proteinBId"].unique()))
-            
+            target_nodes = set(target_nodes)
             color_map = []
             for node in G.nodes():
                 if node in  target_nodes:
