@@ -20,13 +20,20 @@ import time
 
 class FMModel():
     def __init__(self, data, sparkSession, DTI_fm = None, PPI_fm = None, isAlternative = False):
+        self.saveMatrixOnFile = False
         self.spark = sparkSession
         self.data = data
         self._config = Configuration()
         if(isAlternative):
-            self.createMatrixAlternative(DTI_fm,PPI_fm)
+            self.createInteractionsMatrix(DTI_fm,PPI_fm)
         else:
-            self.createMatrix_final()
+            self.createFeedbackMatrix()
+            
+    def _saveMatrixOnFile(self, namefile = "dataset"):
+        if(self.saveMatrixOnFile):
+            print("Save result on file")
+            self.data.write.mode("overwrite").option("header", True).csv("ML_Models/"+namefile)
+            print("Completed result on file")
 
     def _createOneHotCodeDF(self, isDrug : bool):
         if(isDrug):
@@ -64,19 +71,14 @@ class FMModel():
         self.data = self.data.drop('drugId_Tot')
     
     def _createFinalDataSet(self):
-        self.data.show(2)
         columnsToSave = ["amount_interactions", "proteinId_int", "drugId_int"]
         self.columnsToRemove = [col for col in self.data.columns if col not in columnsToSave]
         assembler = VectorAssembler(inputCols=self.columnsToRemove, outputCol="features")
 
         self.data = assembler.transform(self.data)
         self.data = self.data.select("proteinId_int", "drugId_int","features" ,"amount_interactions")
-        self.data.show(2)
 
-    def createMatrixAlternative(self, DTI_fm, PPI_fm):
-        # df_drugs_ps = self._createOneHotCodeDF(True)
-        # df_target_ps = self._createOneHotCodeDF(False)
-
+    def createInteractionsMatrix(self, DTI_fm, PPI_fm):
         df_inter = self.data.withColumnRenamed("drugId", "drugId_int")
         df_inter = df_inter.withColumnRenamed("proteinId", "proteinId_int")
 
@@ -87,65 +89,71 @@ class FMModel():
         PPI_fm = PPI_fm.orderBy("proteinId")
         df_table = DTI_fm.join(df_inter, DTI_fm.drugId == df_inter.drugId_int)
         df_table = PPI_fm.join(df_table, PPI_fm.proteinId == df_table.proteinId_int)
-        # df_table = df_table.join(df_drugs_ps, df_table.drugId_int == df_drugs_ps.drugId_one_hot)
-        # df_table = df_table.join(df_target_ps, df_table.proteinId_int == df_target_ps.proteinId_one_hot)
         self.data = df_table.orderBy("drugId_int", "proteinId_int")
-        self.data.show(2)
         self._clean_data()
-        print("Save result on file")
-        self.data.write.mode("overwrite").option("header", True).csv("ML_Models/dataset")
-        print("Completed result on file")
+        self._saveMatrixOnFile("datasetInteractionsMatrix")
         self._createFinalDataSet()
-
-
-    def createMatrix(self):
-        df_drugs_ps = self._createOneHotCodeDF(True)
-        df_target_ps = self._createOneHotCodeDF(False)
-
-        df_drugs_ps = df_drugs_ps.orderBy("drugId_one_hot")
-        df_target_ps = df_target_ps.orderBy("proteinId_one_hot")
-
+    
+    def dataframeOthersInteraction(self):
         df_table = self.data.orderBy("drugId").groupBy("drugId").pivot("proteinId").agg(F.first("amount_interactions")).fillna(0)
+        targets = []
         for column in df_table.columns:
-            if column != "drugId":
-                df_table = df_table.withColumnRenamed(column, f"{column}_Int")
+                if column != "drugId":
+                    targets.append(column)
+                df_table = df_table.withColumnRenamed(column, f"{column}_Tot")
 
-        df_inter = self.data.withColumnRenamed("drugId", "drugId_int")
-        df_inter = df_inter.withColumnRenamed("proteinId", "proteinId_int")
-        df_table = df_table.join(df_inter, df_table.drugId == df_inter.drugId_int)
-        df_table = df_table.join(df_drugs_ps, df_table.drugId_int == df_drugs_ps.drugId_one_hot)
-        df_table = df_table.join(df_target_ps, df_table.proteinId_int == df_target_ps.proteinId_one_hot)
-        self.data = df_table.orderBy("drugId_int", "proteinId_int")
-        self._clean_data()
-        self._createFinalDataSet()
+        df_table = df_table.join(self.data, (self.data.drugId == df_table.drugId_Tot))
+        for target in targets:
+            df_table = df_table.withColumn(f"{target}_Tot", F.when(F.col('proteinId') == target, 0).otherwise(F.col(f"{target}_Tot")))
+
+        df_table.show()
         
-    def createMatrix_final(self):
+        return df_table
+        
+    def createFeedbackMatrix(self):
         df_drugs_ps = self._createOneHotCodeDF(True)
         df_target_ps = self._createOneHotCodeDF(False)
 
         df_drugs_ps = df_drugs_ps.orderBy("drugId_one_hot")
         df_target_ps = df_target_ps.orderBy("proteinId_one_hot")
 
-        # df_table = self.data.orderBy("drugId").groupBy("drugId").pivot("proteinId").agg(F.first("amount_interactions")).fillna(0)
         df_table = self.dataframeOthersInteraction()
-        # for column in df_table.columns:
-        #     if column != "drugId":
-        #         df_table = df_table.withColumnRenamed(column, f"{column}_Int")
-
-        # df_inter = self.data.withColumnRenamed("drugId", "drugId_int")
-        # df_inter = df_inter.withColumnRenamed("proteinId", "proteinId_int")
+        
         df_table = df_table.withColumnRenamed("drugId", "drugId_int")
         df_table = df_table.withColumnRenamed("proteinId", "proteinId_int")
-        # df_table = df_table.join(df_inter, df_table.drugId == df_inter.drugId_int)
         df_table = df_target_ps.join(df_table, df_table.proteinId_int == df_target_ps.proteinId_one_hot)
         df_table = df_drugs_ps.join(df_table, df_table.drugId_int == df_drugs_ps.drugId_one_hot)
         self.data = df_table.orderBy("drugId_int", "proteinId_int")
+        
         self._clean_data()
+        self._saveMatrixOnFile("datasetFeedbackMatrix")
         self._createFinalDataSet()
+    
+    def _defineSets(self, test, training, seed):
+        if(test == None and training == None):
+            return self.data.randomSplit([0.8, 0.2], seed=seed)
+        else:
+            training = training.withColumnRenamed("drugId", "drugId_int")
+            training = training.withColumnRenamed("proteinId", "proteinId_int")
+            test = test.withColumnRenamed("drugId", "drugId_int")
+            test = test.withColumnRenamed("proteinId", "proteinId_int")
+            training = self.data.join(training, on=["drugId_int", "proteinId_int"], how="semi")
+            test = self.data.join(test, on=["drugId_int", "proteinId_int"], how="semi")
 
-    def train(self, seed = 42):
-        (training, test) = self.data.randomSplit([0.8, 0.2], seed=seed)
+            return (training, test)
+    
+    def _compareTrainingTest(self, model, test, training): 
+        predictionsTraining = model.transform(training)
+        predictionsTraining.orderBy("amount_interactions", ascending=[False]).show()
+        predictionsTest = model.transform(test)
+        predictionsTest.orderBy("amount_interactions", ascending=[False]).show()
+        evaluator = RegressionEvaluator(metricName = "rmse", labelCol = "amount_interactions", predictionCol = "prediction")
+           
+        print(evaluator.evaluate(predictionsTraining))
+        print(evaluator.evaluate(predictionsTest))
 
+    def train(self, test = None , training = None,seed = 42):
+        (training, test) = self._defineSets(test, training, seed)    
         regParams = self._config['hyperpameters_FM']['regParams']
         maxIters = self._config['hyperpameters_FM']['maxIters']
         initStds = self._config['hyperpameters_FM']['initStds']
@@ -161,8 +169,12 @@ class FMModel():
             for maxIter in maxIters:
                 for initStd in initStds:
                     for factorSize in factorSizes:
+
                         fm = FMRegressor(featuresCol='features', labelCol='amount_interactions', maxIter=maxIter, initStd = initStd, factorSize=factorSize, regParam = regParam)
+                        start_time = time.time()
                         fm_model = fm.fit(training)
+                        print("--- Time required %s seconds ---" % (time.time() - start_time))
+
                         predictions = fm_model.transform(test)
                         evaluator = RegressionEvaluator(metricName = "rmse", labelCol = "amount_interactions", predictionCol = "prediction")
                         rmse = evaluator.evaluate(predictions)
@@ -178,37 +190,14 @@ class FMModel():
                         print("For regParam: {0}, maxIter:{1}, initStd:{2},factorSize:{3} , RMSE:{4}".format(regParam, maxIter, initStd, factorSize,rmse))
 
         print("Chosen parameters: regParam: {0}, maxIter:{1}, initStd:{2},factorSize:{3}, RMSE:{4}".format(self.aus_regParam, self.aus_maxIter, self.aus_initStd,self.aus_factorSize, self.aus_rmse))
-        predictionsTraining = self.model.transform(training)
-        predictionsTest = self.model.transform(test)
-        test.select("amount_interactions").orderBy("amount_interactions", ascending=[False]).show()
-        evaluator = RegressionEvaluator(metricName = "rmse", labelCol = "amount_interactions", predictionCol = "prediction")
-        print(evaluator.evaluate(predictionsTraining))
-        print(evaluator.evaluate(predictionsTest))
+
+        if(self._config['toCompareTrainingTest']):
+            self._compareTrainingTest(self.model, test, training)
+    
+    def crossValidation(self, dataset = None):
+        if(dataset == None):
+            dataset = self.data
         
-    ## da vedere
-    def dataframeOthersInteraction(self):
-        df_table = self.data.orderBy("drugId").groupBy("drugId").pivot("proteinId").agg(F.first("amount_interactions")).fillna(0)
-        targets = []
-        for column in df_table.columns:
-                if column != "drugId":
-                    targets.append(column)
-                df_table = df_table.withColumnRenamed(column, f"{column}_Tot")
-
-        df_table = df_table.join(self.data, (self.data.drugId == df_table.drugId_Tot))
-        # df_table.show()
-        for target in targets:
-            df_table = df_table.withColumn(f"{target}_Tot", F.when(F.col('proteinId') == target, 0).otherwise(F.col(f"{target}_Tot")))
-
-        df_table.show()
-
-        # df_table = df_table.drop("drugId_Tot")
-        # df_table = df_table.drop("amount_interactions")
-        # df_table = df_table.withColumnRenamed("drugId","drugId_Tot")
-        # df_table = df_table.withColumnRenamed("proteinId","proteinId_Tot")
-        # # df_table.show()
-        return df_table
-
-    def crossValidation(self):
         fm = FMRegressor(featuresCol='features', labelCol='amount_interactions')
         grid = ParamGridBuilder()\
                 .addGrid(fm.regParam, self._config['hyperpameters_FM']['regParams'])\
@@ -221,13 +210,14 @@ class FMModel():
 
         cv = CrossValidator(estimator=fm, estimatorParamMaps=grid, evaluator=evaluator,parallelism=6, numFolds=5)
 
-        self.cvModel = cv.fit(self.data)
+        start_time = time.time()
+        self.cvModel = cv.fit(dataset)
+        print("--- Time required %s seconds ---" % (time.time() - start_time))
 
         self.index_best = np.argmin(self.cvModel.avgMetrics)
         map_hyper = self.cvModel.getEstimatorParamMaps()
         print("The best rmse is:{0}".format(self.cvModel.avgMetrics[ self.index_best]))
         print("The best hyperparameters are:{0}".format(map_hyper[ self.index_best]))
-        return self.cvModel.avgMetrics[ self.index_best]
 
     def avgCrossvalidation(self):
         avgMetrics = []
@@ -235,40 +225,12 @@ class FMModel():
             result = self.crossValidation()
             avgMetrics.append(result)
 
-        return avgMetrics
+        return avgMetrics    
     
-    def predictionCrossvalidation(self):
-        df_prediction = self.data.orderBy("amount_interactions", ascending=[False]).limit(20)
-        self.crossValidation()
-
-        return self.cvModel.transform(df_prediction)
-    
-    
-    def crossValidationWithTest(self):
-        (training, test) = self.data.randomSplit([0.8, 0.2])
-
-        fm = FMRegressor(featuresCol='features', labelCol='amount_interactions')
-        grid = ParamGridBuilder()\
-                .addGrid(fm.regParam, self._config['hyperpameters_FM']['regParams'])\
-                .addGrid(fm.maxIter, self._config['hyperpameters_FM']['maxIters'])\
-                .addGrid(fm.initStd, self._config['hyperpameters_FM']['initStds'])\
-                .addGrid(fm.factorSize, self._config['hyperpameters_FM']['factorSizes'] )\
-                .build()
-
-        evaluator = RegressionEvaluator(metricName = "rmse", labelCol = "amount_interactions", predictionCol = "prediction")
-
-        cv = CrossValidator(estimator=fm, estimatorParamMaps=grid, evaluator=evaluator,parallelism=6, numFolds=5)
-        start_time = time.time()
-        self.cvModel = cv.fit(training)
-        print("--- %s seconds ---" % (time.time() - start_time))
-        self.index_best = np.argmin(self.cvModel.avgMetrics)
-        map_hyper = self.cvModel.getEstimatorParamMaps()
-        print("The best rmse is:{0}".format(self.cvModel.avgMetrics[ self.index_best]))
-        print("The best hyperparameters are:{0}".format(map_hyper[ self.index_best]))
-        predictionsTraining = self.cvModel.transform(training)
-        predictionsTest = self.cvModel.transform(test)
-        test.select("amount_interactions").orderBy("amount_interactions", ascending=[False]).show()
-        predictionsTraining.orderBy("amount_interactions", ascending=[False]).show()
-        predictionsTest.orderBy("amount_interactions", ascending=[False]).show()
-        print(evaluator.evaluate(predictionsTraining))
-        print(evaluator.evaluate(predictionsTest))
+    def crossValidationWithTest(self,test = None , training = None):
+        (training, test) = self._defineSets(test, training,42) 
+        
+        self.crossValidation(training)
+        
+        if(self._config['toCompareTrainingTestCV']):
+            self._compareTrainingTest(self.cvModel, test, training)
