@@ -93,10 +93,10 @@ class ALSModel():
             pipeline = Pipeline(stages = [drug_name, prontein_name])
             self.drug_proteins_recommended = pipeline.fit(self.data).transform(proteins_recommended)
             self.drug_proteins_recommended =   self.drug_proteins_recommended.select("drugId","proteinId","rating")\
-                                                                               .orderBy("drugId","rating")
+                                                                               .orderBy("drugId","rating", ascending=[True,False])
                                                                                
     def calculate_recommended_proteins(self):
-            amount_proteins_for_drug = 7
+            amount_proteins_for_drug = 10
             proteins_recommended = self.model.recommendForAllUsers(amount_proteins_for_drug)
             proteins_recommended = proteins_recommended.withColumn("proteinAndRating", explode(proteins_recommended.recommendations))\
                                                             .select("ID_Drug_Index", "proteinAndRating.*")
@@ -131,3 +131,4 @@ class ALSModel():
         
         if(self._config['toCompareTrainingTestCV']):
             self._compareTrainingTest(self.cvModel, test, training)
+    

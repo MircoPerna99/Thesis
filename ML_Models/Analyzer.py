@@ -94,12 +94,15 @@ class Analyzer():
     def disposeSparkSession(self):
         self.sparkSession.stop()
 
-    def compareALSAndFM(self):
+    def areModelInitialized(self):
         if(self.ALSModel == None):
             self.initALSModel()
         
         if(self.FMModel == None):
             self.initFMMModel()
+
+    def compareALSAndFM(self):
+        self.areModelInitialized()
         
         seeds = random.sample(range(1, 101), self.config['amountOfSeed'])
         for seed in seeds:
@@ -110,14 +113,16 @@ class Analyzer():
             self.FMModel.train(training=training, test = test, seed=seed)
         
     def compareALSAndFMCrossValidation(self):
-        if(self.ALSModel == None):
-            self.initALSModel()
-        
-        if(self.FMModel == None):
-            self.initFMMModel()
+        self.areModelInitialized()
             
         self.ALSModel.crossValidationWithTest()
         self.FMModel.crossValidationWithTest()
+    
+    def compareRanking(self):
+        self.areModelInitialized()
+        self.ALSModel.train()
+        self.ALSModel.calculate_recommended_proteins()
+        self.ALSModel.drug_proteins_recommended.show()
     
     def _calculateDictionaryFrequency(dict : dict):
         dictToReturn = {}
