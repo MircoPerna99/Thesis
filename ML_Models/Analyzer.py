@@ -119,7 +119,7 @@ class Analyzer():
     def compareALSAndFMCrossValidation(self):
         self.areModelInitialized()
             
-        self.ALSModel.crossValidationWithTest()
+        # self.ALSModel.crossValidationWithTest()
         self.FMModel.crossValidationWithTest()
     
     def compareRanking(self):
