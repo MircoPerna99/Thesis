@@ -129,9 +129,9 @@ class Analyzer():
         proteins = ["P07333", "P10721","P09769",
                             "P06239",
                             "P12931"]
-        self.FMModel.calculateRecommendedSpecificProteinsForOneDrug("DB01254",proteins,100)
+        self.FMModel.calculateRecommendedProteinsForOneDrug("DB01254",10)
         self.FMModel.drug_proteins_recommended.show()
-        self._saveDataframeOnCSV(self.FMModel.drug_proteins_recommended, "DPR_FMM_DB01254")
+        # self._saveDataframeOnCSV(self.FMModel.drug_proteins_recommended, "DPR_FMM_DB01254")
         # print(self.FMModel.drug_proteins_recommended.count())
         # print(self.FMModel.drug_proteins_recommended.join(self.ALSModel.drug_proteins_recommended, \
         #                                             (self.ALSModel.drug_proteins_recommended.drugId == self.FMModel.drug_proteins_recommended.drugId_int) \

@@ -114,10 +114,7 @@ class FMModel():
 
         df_table = df_table.join(self.data, (self.data.drugId == df_table.drugId_Tot))
         for target in targets:
-            df_table = df_table.withColumn(f"{target}_Tot", F.when(F.col('proteinId') == target, 0).otherwise(F.col(f"{target}_Tot")))
-
-        df_table.show()
-        
+            df_table = df_table.withColumn(f"{target}_Tot", F.when(F.col('proteinId') == target, 0).otherwise(F.col(f"{target}_Tot")))        
         return df_table
         
     def createFeedbackMatrix(self):
@@ -290,6 +287,7 @@ class FMModel():
         proteinIds_frame = self.spark.createDataFrame(proteins, StringType())
         proteinIds_frame = proteinIds_frame.withColumnRenamed("value", "proteinId_int")
         df_inter = drugIds_frame.crossJoin(proteinIds_frame)
+        
         df_table = self.DTI_fm.join(df_inter, self.DTI_fm.drugId == df_inter.drugId_int)
         df_table = self.PPI_fm.join(df_table, self.PPI_fm.proteinId == df_table.proteinId_int)
         data = df_table.orderBy("drugId_int", "proteinId_int")
