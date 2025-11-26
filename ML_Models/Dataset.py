@@ -71,12 +71,14 @@ class Dataset():
     def getDTIForAnlyses(self):
         DTIs = []
         repositoryMongo = RepositoryMongo()
-
-        for ppi in self.PPIs: 
-            query = '{"$or": [ { "proteinId": "'+ppi._proteinAId+'"},{ "proteinId": "'+ppi._proteinBId+'"}]}'
-            DTIsToAdd = repositoryMongo.readDTIs(query)
-            if(DTIsToAdd != None or len(DTIsToAdd) != 0):
-                DTIs.extend(DTIsToAdd)
+        if(self.allProtein):
+            DTIs =  repositoryMongo.readDTIs()
+        else:  
+            for ppi in self.PPIs: 
+                query = '{"$or": [ { "proteinId": "'+ppi._proteinAId+'"},{ "proteinId": "'+ppi._proteinBId+'"}]}'
+                DTIsToAdd = repositoryMongo.readDTIs(query)
+                if(DTIsToAdd != None or len(DTIsToAdd) != 0):
+                    DTIs.extend(DTIsToAdd)
         
         repositoryMongo.close_connection()
         

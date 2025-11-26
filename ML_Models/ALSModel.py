@@ -11,6 +11,8 @@ from pyspark.ml import Pipeline
 from pyspark.ml.tuning import CrossValidator, ParamGridBuilder
 import numpy as np
 from Services.configuration import Configuration
+from pyspark.sql.functions import rank, col
+from pyspark.sql.window import Window
 import random
 import time
 
@@ -18,6 +20,7 @@ import time
 class ALSModel():
     def __init__(self, data):
         self._config = Configuration()
+        self.model = None
         self.indexing_name(data)
         
     def indexing_name(self,data):
@@ -94,10 +97,14 @@ class ALSModel():
             self.drug_proteins_recommended = pipeline.fit(self.data).transform(proteins_recommended)
             self.drug_proteins_recommended =   self.drug_proteins_recommended.select("drugId","proteinId","rating")\
                                                                                .orderBy("drugId","rating", ascending=[True,False])
+            window = Window.partitionBy(self.drug_proteins_recommended['drugId']).orderBy(self.drug_proteins_recommended['rating'].desc())
+            self.drug_proteins_recommended = self.drug_proteins_recommended.select('drugId','proteinId','rating', rank().over(window).alias('rank')) \
+                                                        .orderBy("drugId","rating", ascending=[True,False])\
                                                                                
-    def calculate_recommended_proteins(self):
-            amount_proteins_for_drug = 10
-            proteins_recommended = self.model.recommendForAllUsers(amount_proteins_for_drug)
+    def calculate_recommended_proteins(self, amountProteinsforDrug = 10):
+            if( self.model == None):
+                self.train()
+            proteins_recommended = self.model.recommendForAllUsers(amountProteinsforDrug)
             proteins_recommended = proteins_recommended.withColumn("proteinAndRating", explode(proteins_recommended.recommendations))\
                                                             .select("ID_Drug_Index", "proteinAndRating.*")
             self.from_index_to_name(proteins_recommended)

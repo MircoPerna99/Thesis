@@ -8,6 +8,7 @@ from ML_Models.ALSModel import ALSModel
 from ML_Models.FMModel import FMModel
 from pyspark.sql import SparkSession
 from Services.configuration import Configuration
+from pyspark.sql.functions import col
 import random
 import json 
 import numpy as np
@@ -52,10 +53,16 @@ class Analyzer():
         self.dataset = Dataset(self.sparkSession)
         print("Finished initialization dataset")
         print("Started to get PPI")
-        self.dataset.getPPIForAnalysesTemp()
+        if(self.config["takeDataFromFile"]):
+            self.dataset.getPPIForAnalysesTemp()
+        else:
+            self.dataset.getPPIForAnalyses()
         print("Amount PPI:{0}".format(len(self.dataset.PPIs)))
         print("Finished to get PPI\nStarted to get DTI")
-        self.dataset.getDTIForAnlysesTemp()
+        if(self.config["takeDataFromFile"]):
+            self.dataset.getDTIForAnlysesTemp()
+        else:
+            self.dataset.getDTIForAnlyses()
         print("Amount DTI:{0}".format(len(self.dataset.DTIs)))
         print("Finished to get DTI")
             
@@ -91,9 +98,6 @@ class Analyzer():
         self.FMModel= FMModel(self.amountInteraction,self.sparkSession ,self.df_DTI, self.df_PPI, self.config["isInteractionsMatrix"])
         print("Completed initialization FM model alternative")
         
-    def disposeSparkSession(self):
-        self.sparkSession.stop()
-
     def areModelInitialized(self):
         if(self.ALSModel == None):
             self.initALSModel()
@@ -120,9 +124,20 @@ class Analyzer():
     
     def compareRanking(self):
         self.areModelInitialized()
-        self.ALSModel.train()
-        self.ALSModel.calculate_recommended_proteins()
-        self.ALSModel.drug_proteins_recommended.show()
+        # self.ALSModel.calculate_recommended_proteins(30)
+        # self.ALSModel.drug_proteins_recommended.show()
+        proteins = ["P07333", "P10721","P09769",
+                            "P06239",
+                            "P12931"]
+        self.FMModel.calculateRecommendedSpecificProteinsForOneDrug("DB01254",proteins,100)
+        self.FMModel.drug_proteins_recommended.show()
+        self._saveDataframeOnCSV(self.FMModel.drug_proteins_recommended, "DPR_FMM_DB01254")
+        # print(self.FMModel.drug_proteins_recommended.count())
+        # print(self.FMModel.drug_proteins_recommended.join(self.ALSModel.drug_proteins_recommended, \
+        #                                             (self.ALSModel.drug_proteins_recommended.drugId == self.FMModel.drug_proteins_recommended.drugId_int) \
+        #                                             & (self.ALSModel.drug_proteins_recommended.proteinId == self.FMModel.drug_proteins_recommended.proteinId_int)
+        #                                             ).count())
+        
     
     def _calculateDictionaryFrequency(dict : dict):
         dictToReturn = {}
@@ -217,3 +232,5 @@ class Analyzer():
         degree_distribution_protein_drug_total_f = self._calculateDictionaryFrequency(degree_distribution_protein_drug_total)
         Histogram.show("Degree distribution Proteins in DTI and PPI", "Degree", "Frequency", degree_distribution_protein_drug_total_f.keys(), degree_distribution_protein_drug_total_f.values())              
 
+    def disposeSparkSession(self):
+        self.sparkSession.stop()
