@@ -45,6 +45,7 @@ class Analyzer():
                                 .config("spark.ui.showConsoleProgress", "false") \
                                 .config("spark.driver.bindAddress", "127.0.0.1") \
                                 .config("spark.driver.memory", "16g") \
+                                .config("spark.sql.pivotMaxValues", "1000000")\
                                 .getOrCreate()
                                 
         self.sparkSession.sparkContext.setLogLevel("ERROR")
@@ -80,6 +81,11 @@ class Analyzer():
         print("Start getting PPI")
         self.df_PPI = self.dataset.getPPInteractionsTable(weight=self.config['PPIWeighted'], noFilter=self.config['PPINotFiltered'])
         print("Operation completed")
+        
+        print("Count proteins which interact with drugs")
+        print(len(self.df_DTI.columns)-1)
+        print("Count proteins")
+        print(len(self.df_PPI.columns)-1)
         
         if(self.config["saveDataOnFile"]):
             result = (self.amountInteraction.orderBy("drugId").groupBy("drugId").pivot("proteinId").agg(F.first("amount_interactions")).fillna(0))
@@ -119,24 +125,25 @@ class Analyzer():
     def compareALSAndFMCrossValidation(self):
         self.areModelInitialized()
             
-        # self.ALSModel.crossValidationWithTest()
+        self.ALSModel.crossValidationWithTest()
         self.FMModel.crossValidationWithTest()
     
     def compareRanking(self):
         self.areModelInitialized()
-        # self.ALSModel.calculate_recommended_proteins(30)
-        # self.ALSModel.drug_proteins_recommended.show()
-        proteins = ["P07333", "P10721","P09769",
-                            "P06239",
-                            "P12931"]
-        self.FMModel.calculateRecommendedProteinsForOneDrug("DB01254",10)
+        self._saveDataframeOnCSV(self.amountInteraction, "amountInteraction")
+        self.ALSModel.calculate_recommended_proteins(30)
+        self.ALSModel.drug_proteins_recommended.show()
+        self.FMModel.calculateRecommendedProteins(30)
         self.FMModel.drug_proteins_recommended.show()
-        # self._saveDataframeOnCSV(self.FMModel.drug_proteins_recommended, "DPR_FMM_DB01254")
+        self._saveDataframeOnCSV(self.ALSModel.drug_proteins_recommended, "DPR_ALS_Comp")
+        self._saveDataframeOnCSV(self.ALSModel.drug_proteins_recommended, "DPR_FMM_Comp")
+        # self._saveDataframeOnCSV(self.FMModel.drug_proteins_recommended, "DPR_FMM_OLD")
         # print(self.FMModel.drug_proteins_recommended.count())
-        # print(self.FMModel.drug_proteins_recommended.join(self.ALSModel.drug_proteins_recommended, \
+        # join = self.FMModel.drug_proteins_recommended.join(self.ALSModel.drug_proteins_recommended, \
         #                                             (self.ALSModel.drug_proteins_recommended.drugId == self.FMModel.drug_proteins_recommended.drugId_int) \
         #                                             & (self.ALSModel.drug_proteins_recommended.proteinId == self.FMModel.drug_proteins_recommended.proteinId_int)
-        #                                             ).count())
+        #                                             )
+        # self._saveDataframeOnCSV(join, "DPR_JOIN")
         
     
     def _calculateDictionaryFrequency(dict : dict):

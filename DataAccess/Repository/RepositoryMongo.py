@@ -5,6 +5,8 @@ sys.path.append(os.path.abspath("../"))
 from pymongo import MongoClient
 from DataAccess.Model.PPI_Model import PPIModel
 from DataAccess.Model.DTI_Model import DTIModel
+from DataAccess.Model.DrugStructureModel import DrugStuctureModel
+from DataAccess.Model.ProteinStructureModel import ProteinStuctureModel
 import json
 from Services.configuration import Configuration
 
@@ -52,6 +54,14 @@ class RepositoryMongo():
             ppiToReturn = None
             
         return ppiToReturn
+    
+    def insertStructureDrug(self, drugStucture: DrugStuctureModel):
+        self.collection = self.database["DrugStructures"]        
+        self.collection.insert_one(drugStucture.toDict())
+    
+    def insertStructureProtein(self, proteinStucture: ProteinStuctureModel):
+        self.collection = self.database["ProteinStructures"]        
+        self.collection.insert_one(proteinStucture.toDict())
          
     def insertDTI(self, DTI: DTIModel):
         self.collection = self.database["DTI"]

@@ -13,7 +13,7 @@
         "initStds" : [0.1],
         "factorSizes" : [2]
     },
-    "isInteractionsMatrix" : false,
+    "isInteractionsMatrix" : true,
     "nameFileAmountInteractions": "interactions_DP",
     "nameFileDTI": "DTI",
     "nameFilePredictionsALS": "PredictionsALS",
@@ -33,9 +33,10 @@
     "sqlPassword":"Mirco949!",
     "sqlDatabase":"tesi",
     "takeAllProtein" : true,
-    "takeDataFromFile" : true,
+    "takeDataFromFile" : false,
     "toCompareTrainingTest":true,
-    "toCompareTrainingTestCV":true
+    "toCompareTrainingTestCV":true,
+    "xmlPath":"/Users/mircoperna/Documents/Universita/Tesi/Code/Thesis/Dates/full_database.xml"
 }
 
 

@@ -51,7 +51,7 @@ class Dataset():
                             PPIs.extend(PPIsToAdd_Link)
                 
                     PPIs.extend(PPIsToAdd)
-                    
+
         repositoryMongo.close_connection()
         
         self.PPIs = PPIs
@@ -75,7 +75,8 @@ class Dataset():
             DTIs =  repositoryMongo.readDTIs()
         else:  
             for ppi in self.PPIs: 
-                query = '{"$or": [ { "proteinId": "'+ppi._proteinAId+'"},{ "proteinId": "'+ppi._proteinBId+'"}]}'
+                # query = '{"$or": [ { "proteinId": "'+ppi._proteinAId+'"},{ "proteinId": "'+ppi._proteinBId+'"}]}'
+                query = '{"$or": [ { "proteinId": "'+ppi._proteinAId+'"}]}'
                 DTIsToAdd = repositoryMongo.readDTIs(query)
                 if(DTIsToAdd != None or len(DTIsToAdd) != 0):
                     DTIs.extend(DTIsToAdd)

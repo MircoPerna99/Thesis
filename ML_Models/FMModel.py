@@ -25,14 +25,17 @@ class FMModel():
         self.saveMatrixOnFile = False
         self.spark = sparkSession
         self.data = data
+        self.dataforOneHot = data
         self._config = Configuration()
         self.DTI_fm = None
         self.PPI_fm = None
         self.model = None
+        self.isInteractionsMatrix = isInteractionsMatrix
         if(isInteractionsMatrix):
             self.createInteractionsMatrix(DTI_fm,PPI_fm)
         else:
             self.createFeedbackMatrix()
+        
             
     def _saveMatrixOnFile(self, namefile = "dataset"):
         if(self.saveMatrixOnFile):
@@ -42,9 +45,9 @@ class FMModel():
 
     def _createOneHotCodeDF(self, isDrug : bool):
         if(isDrug):
-            columns_name = [str(row.drugId) for row in self.data.select("drugId").distinct().collect()]
+            columns_name = [str(row.drugId) for row in self.dataforOneHot.select("drugId").distinct().collect()]
         else:
-            columns_name = [str(row.proteinId) for row in self.data.select("proteinId").distinct().collect()]
+            columns_name = [str(row.proteinId) for row in self.dataforOneHot.select("proteinId").distinct().collect()]
 
         columns_name.sort()
         matrix = []
@@ -104,15 +107,17 @@ class FMModel():
         self._saveMatrixOnFile("datasetInteractionsMatrix")
         self.data = self._createFinalDataSet(self.data )
     
-    def dataframeOthersInteraction(self):
-        df_table = self.data.orderBy("drugId").groupBy("drugId").pivot("proteinId").agg(F.first("amount_interactions")).fillna(0)
+    def dataframeOthersInteraction(self, selectedData = None):
+        df_table = self.dataforOneHot.orderBy("drugId").groupBy("drugId").pivot("proteinId").agg(F.first("amount_interactions")).fillna(0)
+        
         targets = []
         for column in df_table.columns:
                 if column != "drugId":
                     targets.append(column)
                 df_table = df_table.withColumnRenamed(column, f"{column}_Tot")
+                
+        df_table = df_table.join(selectedData, (selectedData.drugId == df_table.drugId_Tot))
 
-        df_table = df_table.join(self.data, (self.data.drugId == df_table.drugId_Tot))
         for target in targets:
             df_table = df_table.withColumn(f"{target}_Tot", F.when(F.col('proteinId') == target, 0).otherwise(F.col(f"{target}_Tot")))        
         return df_table
@@ -124,7 +129,7 @@ class FMModel():
         df_drugs_ps = df_drugs_ps.orderBy("drugId_one_hot")
         df_target_ps = df_target_ps.orderBy("proteinId_one_hot")
 
-        df_table = self.dataframeOthersInteraction()
+        df_table = self.dataframeOthersInteraction(self.data)
         
         df_table = df_table.withColumnRenamed("drugId", "drugId_int")
         df_table = df_table.withColumnRenamed("proteinId", "proteinId_int")
@@ -240,21 +245,47 @@ class FMModel():
                                                     .filter(col('rank') <= amountProteinsToSee) \
                                                     .orderBy("drugId_int","prediction", ascending=[True,False])\
     
+    def createInteractionsMatrixForRecommended(self ,drugIds_frame, proteinIds_frame):
+        df_inter = drugIds_frame.crossJoin(proteinIds_frame)
+        df_table = self.DTI_fm.join(df_inter, self.DTI_fm.drugId == df_inter.drugId_int)
+        df_table = self.PPI_fm.join(df_table, self.PPI_fm.proteinId == df_table.proteinId_int)
+        df_table.orderBy("drugId_int", "proteinId_int")
+        df_table = self._clean_data(df_table)
+        return self._createFinalDataSet(df_table,False)
+
+    def createFeedbackMatrixForRecommended(self, drugIds_frame, proteinIds_frame):
+        drugIds_frame = drugIds_frame.withColumnRenamed("drugId_int", "drugId")
+        proteinIds_frame = proteinIds_frame.withColumnRenamed("proteinId_int", "proteinId")
+        df_drugs_ps = self._createOneHotCodeDF(True)
+        df_target_ps = self._createOneHotCodeDF(False)
+
+        df_drugs_ps = df_drugs_ps.orderBy("drugId_one_hot")
+        df_target_ps = df_target_ps.orderBy("proteinId_one_hot")
+        df_inter = drugIds_frame.crossJoin(proteinIds_frame)
+        df_table = self.dataframeOthersInteraction(df_inter)
+        
+        df_table = df_table.withColumnRenamed("drugId", "drugId_int")
+        df_table = df_table.withColumnRenamed("proteinId", "proteinId_int")
+        df_table = df_target_ps.join(df_table, df_table.proteinId_int == df_target_ps.proteinId_one_hot)
+        df_table = df_drugs_ps.join(df_table, df_table.drugId_int == df_drugs_ps.drugId_one_hot)
+        df_table = df_table.orderBy("drugId_int", "proteinId_int")
+        df_table = self._clean_data(df_table)
+        return self._createFinalDataSet(df_table,False)
+        
+    
     def calculateRecommendedProteins(self, amountProteinsToSee = 10):
         if(self.model == None):
             self.train()
        
         drugIds_frame = self.data.select("drugId_int").distinct()
-  
-        proteinIds_frame = self.data.select("proteinId_int").distinct()    
-        df_inter = drugIds_frame.crossJoin(proteinIds_frame)
-        df_table = self.DTI_fm.join(df_inter, self.DTI_fm.drugId == df_inter.drugId_int)
-        df_table = self.PPI_fm.join(df_table, self.PPI_fm.proteinId == df_table.proteinId_int)
-        data = df_table.orderBy("drugId_int", "proteinId_int")
+        proteinIds_frame = self.data.select("proteinId_int").distinct()  
         
-        data = self._clean_data(data)
-        data = self._createFinalDataSet(data,False)
-        
+        if(self.isInteractionsMatrix):
+            data = self.createInteractionsMatrixForRecommended(drugIds_frame, proteinIds_frame)
+        else: 
+            data = self.createFeedbackMatrixForRecommended(drugIds_frame, proteinIds_frame)
+
+
         predictions = self.model.transform(data)
         
         self.drug_proteins_recommended = self._createRanking(predictions,amountProteinsToSee)
@@ -264,15 +295,10 @@ class FMModel():
             self.train()
        
         drugIds_frame = self.data.select("drugId_int").distinct().filter(col('drugId_int') == drugId) 
-
-        proteinIds_frame = self.data.select("proteinId_int").distinct()    
+        proteinIds_frame = self.data.select("proteinId_int").distinct()
+         
         df_inter = drugIds_frame.crossJoin(proteinIds_frame)
-        df_table = self.DTI_fm.join(df_inter, self.DTI_fm.drugId == df_inter.drugId_int)
-        df_table = self.PPI_fm.join(df_table, self.PPI_fm.proteinId == df_table.proteinId_int)
-        data = df_table.orderBy("drugId_int", "proteinId_int")
-        
-        data = self._clean_data(data)
-        data = self._createFinalDataSet(data,False)
+        data = self.createInteractionsMatrixForRecommended(drugIds_frame, proteinIds_frame)
         
         predictions = self.model.transform(data)
         
@@ -283,17 +309,12 @@ class FMModel():
             self.train()
        
         drugIds_frame = self.data.select("drugId_int").distinct().filter(col('drugId_int') == drugId) 
-        
         proteinIds_frame = self.spark.createDataFrame(proteins, StringType())
         proteinIds_frame = proteinIds_frame.withColumnRenamed("value", "proteinId_int")
+        
         df_inter = drugIds_frame.crossJoin(proteinIds_frame)
-        
-        df_table = self.DTI_fm.join(df_inter, self.DTI_fm.drugId == df_inter.drugId_int)
-        df_table = self.PPI_fm.join(df_table, self.PPI_fm.proteinId == df_table.proteinId_int)
-        data = df_table.orderBy("drugId_int", "proteinId_int")
-        
-        data = self._clean_data(data)
-        data = self._createFinalDataSet(data,False)
+        data = self.createInteractionsMatrixForRecommended(drugIds_frame, proteinIds_frame)
+
         
         predictions = self.model.transform(data)
         
