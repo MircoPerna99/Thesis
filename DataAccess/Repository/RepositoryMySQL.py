@@ -3,7 +3,7 @@ import os
 
 sys.path.append(os.path.abspath("../"))
 from Services.configuration import Configuration
-import mysql.connector
+import mysql.connector # type: ignore
 
 class RepositoryMySql():
     def __init__(self):
