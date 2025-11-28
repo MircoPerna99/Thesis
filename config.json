@@ -8,10 +8,10 @@
         "alphas" : [10.0]
     },
     "hyperpameters_FM" : {
-        "regParams" : [0.01,0.1],
-        "maxIters" : [100,200,500],
+        "regParams" : [0.01],
+        "maxIters" : [500],
         "initStds" : [0.1],
-        "factorSizes" : [2,4,8,10]
+        "factorSizes" : [2]
     },
     "isInteractionsMatrix" : false,
     "nameFileAmountInteractions": "interactions_DP",
@@ -21,13 +21,18 @@
     "nameFilePPI": "PPI",
     "nameFileResultALS": "als_result_seed.txt",
     "nameFileResultFM": "fm_result_seed.txt",
-    "proteinsToAnalyse" : [  "P62258"
-                            ,"Q96N67"],
+    "proteinsToAnalyse" : ["P07333", "P10721","P09769",
+                            "P06239"              
+                        ],
     "PPIWeighted": true,
     "PPINotFiltered": false,
     "saveDataOnFile": false,
     "showGraph": false,
-    "takeAllProtein" : false,
+    "sqlHost":"127.0.0.1",
+    "sqlUser":"root",
+    "sqlPassword":"Mirco949!",
+    "sqlDatabase":"tesi",
+    "takeAllProtein" : true,
     "takeDataFromFile" : true,
     "toCompareTrainingTest":true,
     "toCompareTrainingTestCV":true

@@ -6,16 +6,19 @@ sys.path.append(os.path.abspath("../"))
 from DataAccess.Model.PPI_Model import PPIModel
 from DataAccess.Repository.RepositoryFile import RepositoryFile
 from DataAccess.Repository.RepositoryMongo import RepositoryMongo
+from DataAccess.Repository.RepositoryMySQL import RepositoryMySql
 import matplotlib.pyplot as plt
 import pandas as pd
 import networkx as nx
 import re
 
+
 class ETLPPI():
         def __init__(self):
-                self._dfPPI = RepositoryFile('/Users/mircoperna/Documents/Universita/Tesi/Code/Thesis/Dates/PPI/human.txt').readFile()
-                self._prefix = ["uniprotkb:",]
-                self._pattern = r"^(" + "|".join(self._prefix) + ")"
+                x = 0
+                # self._dfPPI = RepositoryFile('/Users/mircoperna/Documents/Universita/Tesi/Code/Thesis/Dates/PPI/human.txt').readFile()
+                # self._prefix = ["uniprotkb:",]
+                # self._pattern = r"^(" + "|".join(self._prefix) + ")"
 
         def countProtein(self):
                 print(self._dfPPI['#ID(s) interactor A'].nunique())
@@ -56,7 +59,16 @@ class ETLPPI():
                         repositoryMongo.insertPPI(ppi)
 
                 repositoryMongo.close_connection()
+
+        def syncFromMongoToMySql(self):                
+                repositoryMongo = RepositoryMongo()
+
+                PPIsToAdd = repositoryMongo.readPPIs()      
+                repositoryMongo.close_connection()
+                
+                repositoryMySql = RepositoryMySql()
+                repositoryMySql.addPPIs(PPIsToAdd)
         
 
 etl = ETLPPI()
-etl.syncFromTextToMongo()
+etl.syncFromMongoToMySql()
