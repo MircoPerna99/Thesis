@@ -124,6 +124,7 @@ class ALSModel():
                 .build()
         
         evaluator = RegressionEvaluator(metricName = "rmse", labelCol = "amount_interactions", predictionCol = "prediction")
+        dataset.cache()
         print(dataset.count())
         cv = CrossValidator(estimator=aus_als, estimatorParamMaps=grid, evaluator=evaluator,parallelism=1, numFolds=5)
         self.cvModel = cv.fit(dataset)
