@@ -96,7 +96,7 @@ class Analyzer():
     
     def initALSModel(self):
         print("Started initialization ALS model")
-        self.ALSModel = ALSModel(self.amountInteraction)
+        self.ALSModel = ALSModel(self.amountInteraction,self.sparkSession)
         print("Completed initialization ALS model")
     
     def initFMMModel(self):

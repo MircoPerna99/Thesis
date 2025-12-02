@@ -18,9 +18,10 @@ import time
 
 
 class ALSModel():
-    def __init__(self, data):
+    def __init__(self, data,sparkSession):
         self._config = Configuration()
         self.model = None
+        self.spark = sparkSession
         self.indexing_name(data)
         
     def indexing_name(self,data):
