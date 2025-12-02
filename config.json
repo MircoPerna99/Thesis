@@ -33,7 +33,7 @@
     "sqlPassword":"Mirco949!",
     "sqlDatabase":"tesi",
     "takeAllProtein" : true,
-    "takeDataFromFile" : false,
+    "takeDataFromFile" : true,
     "toCompareTrainingTest":true,
     "toCompareTrainingTestCV":true,
     "xmlPath":"/Users/mircoperna/Documents/Universita/Tesi/Code/Thesis/Dates/full_database.xml"
