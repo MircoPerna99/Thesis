@@ -31,11 +31,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Imposta la variabile d'ambiente JAVA_HOME
 # Questo è necessario affinché PySpark trovi l'installazione Java
 RUN echo "export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64" >> /etc/bash.bashrc
-#Aumenta lo Stack Size per gli Executor (da 4m a 8m)
-ENV SPARK_EXECUTOR_OPTS "-Xss8m"
+ENV SPARK_EXECUTOR_OPTS "-Xss16m"
 
-#NUOVO: Aumenta lo Stack Size per il Driver
-ENV SPARK_DRIVER_OPTS "-Xss8m"
+#  Aumenta ULTERIORMENTE lo Stack Size per il Driver
+ENV SPARK_DRIVER_OPTS "-Xss16m"
 # Copia il resto del codice sorgente dell'applicazione
 COPY . .
 
