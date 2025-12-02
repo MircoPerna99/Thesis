@@ -2,10 +2,10 @@
     "amountOfSeed":1,
     "connection_string_mongo": "mongodb://localhost:27017/",
     "hyperpameters_ALS" : {
-        "maxIter": [10,20,30],
+        "maxIter": [10,30],
         "regParams" : [0.1,0.01],
         "ranks" : [30,20,10],
-        "alphas" : [10.0,20.0,30.0,50.0]
+        "alphas" : [10.0]
     },
     "hyperpameters_FM" : {
         "regParams" : [0.01,0.1],
