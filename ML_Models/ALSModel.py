@@ -30,7 +30,7 @@ class ALSModel():
         self.data = pipeline.fit(data).transform(data)
     
     def _defineSets(self, test, training, seed):
-        if(test == None and training == None):
+        if(test == None or training == None):
             return self.data.randomSplit([0.8, 0.2], seed=seed)
         else:
             training = self.data.join(training, on=["drugId", "proteinId"], how="semi")
