@@ -124,7 +124,7 @@ class ALSModel():
         
         evaluator = RegressionEvaluator(metricName = "rmse", labelCol = "amount_interactions", predictionCol = "prediction")
         
-        cv = CrossValidator(estimator=aus_als, estimatorParamMaps=grid, evaluator=evaluator,parallelism=1, numFolds=5)
+        cv = CrossValidator(estimator=aus_als, estimatorParamMaps=grid, evaluator=evaluator,parallelism=6, numFolds=5)
         self.cvModel = cv.fit(dataset)
         index_best = np.argmin(self.cvModel.avgMetrics)
         map_hyper = self.cvModel.getEstimatorParamMaps()                       
