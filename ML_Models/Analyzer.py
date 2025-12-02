@@ -46,6 +46,7 @@ class Analyzer():
                                 .config("spark.driver.bindAddress", "127.0.0.1") \
                                 .config("spark.driver.memory", "16g") \
                                 .config("spark.sql.pivotMaxValues", "1000000")\
+                                .config("spark.driver.extraJavaOptions", "-Xss4m")\
                                 .getOrCreate()
                                 
         self.sparkSession.sparkContext.setLogLevel("ERROR")
