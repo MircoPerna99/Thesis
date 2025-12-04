@@ -45,8 +45,11 @@ class Analyzer():
                                 .config("spark.ui.showConsoleProgress", "false") \
                                 .config("spark.driver.bindAddress", "127.0.0.1") \
                                 .config("spark.driver.memory", "16g") \
+                                .config("spark.executor.memory", "8g") \
                                 .config("spark.sql.pivotMaxValues", "1000000")\
                                 .config("spark.driver.extraJavaOptions", "-Xss4m")\
+                                .config("spark.executor.extraJavaOptions", "-XX:+UseG1GC")\
+                                .config("spark.driver.extraJavaOptions", "-XX:+UseG1GC")\
                                 .getOrCreate()
                                 
         self.sparkSession.sparkContext.setLogLevel("ERROR")
@@ -126,7 +129,7 @@ class Analyzer():
     def compareALSAndFMCrossValidation(self):
         self.areModelInitialized()
             
-        self.ALSModel.crossValidationWithTest()
+        # self.ALSModel.crossValidationWithTest()
         self.FMModel.crossValidationWithTest()
     
     def compareRanking(self):

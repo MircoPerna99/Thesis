@@ -219,7 +219,8 @@ class FMModel():
                 .build()
 
         evaluator = RegressionEvaluator(metricName = "rmse", labelCol = "amount_interactions", predictionCol = "prediction")
-
+        dataset.cache()
+        print(dataset.count())
         cv = CrossValidator(estimator=fm, estimatorParamMaps=grid, evaluator=evaluator,parallelism=6, numFolds=5)
 
         start_time = time.time()
