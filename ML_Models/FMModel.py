@@ -207,8 +207,6 @@ class FMModel():
             self._compareTrainingTest(self.model, test, training)
     
     def crossValidation(self, dataset = None):
-        sc = self.spark.sparkContext 
-        sc.setLogLevel("INFO")
         if(dataset == None):
             dataset = self.data
         
