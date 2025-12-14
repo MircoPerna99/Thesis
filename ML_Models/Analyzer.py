@@ -44,9 +44,12 @@ class Analyzer():
                                 .config("spark.driver.host", "localhost") \
                                 .config("spark.ui.showConsoleProgress", "false") \
                                 .config("spark.driver.bindAddress", "127.0.0.1") \
-                                .config("spark.driver.memory", "16g") \
-                                .config("spark.executor.memory", "8g") \
                                 .config("spark.sql.pivotMaxValues", "1000000")\
+                                .config("spark.driver.memory", "16g") \
+                                .config("spark.executor.memory", "12g") \
+                                .config("spark.memory.fraction", "0.6") \
+                                .config("spark.memory.offHeap.enabled", "true") \
+                                .config("spark.memory.offHeap.size", "4g") \
                                 .config("spark.driver.extraJavaOptions", "-Xss4m")\
                                 .config("spark.executor.extraJavaOptions", "-XX:+UseG1GC")\
                                 .config("spark.driver.extraJavaOptions", "-XX:+UseG1GC")\
