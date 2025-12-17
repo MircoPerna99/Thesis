@@ -41,9 +41,9 @@ class Graph():
             G.add_edges_from(dfPPI[['proteinAId', 'proteinBId']].values)
             options = {
                 "font_size": 8,
-                "node_size": 100,
+                "node_size": 200,
                 "edgecolors": "black",
-                "with_labels": False
+                "with_labels": True
             }
             
             target_nodes = list(dfDTI["proteinId"].unique())

@@ -112,6 +112,7 @@ class Dataset():
                     score = p._score) for p in PPIs]
 
         dfPPI_sp = self.spark.createDataFrame(rows)
+        dfPPI_sp = dfPPI_sp.unionByName(dfPPI_sp.select(dfPPI_sp.proteinBId.alias("proteinAId"), dfPPI_sp.proteinAId.alias("proteinBId"),dfPPI_sp.score)).unique()
         dfPPI_sp = dfPPI_sp.groupBy("proteinAId", "proteinBId") \
                     .agg(F.max("score").alias("score"))
         return  dfPPI_sp

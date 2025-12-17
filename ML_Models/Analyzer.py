@@ -142,8 +142,8 @@ class Analyzer():
         self.ALSModel.drug_proteins_recommended.show()
         self.FMModel.calculateRecommendedProteins(30)
         self.FMModel.drug_proteins_recommended.show()
-        self._saveDataframeOnCSV(self.ALSModel.drug_proteins_recommended, "DPR_ALS_Comp")
-        self._saveDataframeOnCSV(self.ALSModel.drug_proteins_recommended, "DPR_FMM_Comp")
+        self._saveDataframeOnCSV(self.ALSModel.drug_proteins_recommended, "DPR_ALS")
+        self._saveDataframeOnCSV(self.FMModel.drug_proteins_recommended, "DPR_FMM")
         # self._saveDataframeOnCSV(self.FMModel.drug_proteins_recommended, "DPR_FMM_OLD")
         # print(self.FMModel.drug_proteins_recommended.count())
         # join = self.FMModel.drug_proteins_recommended.join(self.ALSModel.drug_proteins_recommended, \

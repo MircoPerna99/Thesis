@@ -627,3 +627,13 @@ ML_Models/DPR_JOIN/._SUCCESS.crc
 ML_Models/DPR_JOIN/.part-00000-1e813525-b18a-49de-a2c5-2c89882e6471-c000.csv.crc
 ML_Models/DPR_JOIN/part-00000-1e813525-b18a-49de-a2c5-2c89882e6471-c000.csv
 Dates/full_database.xml
+ML_Models/amountInteraction/.part-00000-faaea4d5-cfec-489b-88d8-13970dc6f4f5-c000.csv.crc
+ML_Models/amountInteraction/part-00000-faaea4d5-cfec-489b-88d8-13970dc6f4f5-c000.csv
+ML_Models/DPR_ALS/.part-00000-2c620430-8030-4711-9f86-03335b0a041f-c000.csv.crc
+ML_Models/DPR_ALS/part-00000-2c620430-8030-4711-9f86-03335b0a041f-c000.csv
+ML_Models/DPR_FMM/.part-00000-a8820f10-14dc-4a50-ae1e-8e469f93ece2-c000.csv.crc
+ML_Models/DPR_FMM/part-00000-a8820f10-14dc-4a50-ae1e-8e469f93ece2-c000.csv
+ML_Models/DPR_FMM_WEIGHTED/_SUCCESS
+ML_Models/DPR_FMM_WEIGHTED/._SUCCESS.crc
+ML_Models/DPR_FMM_WEIGHTED/.part-00000-0e1e446d-63e2-4f92-8556-cca200da7aad-c000.csv.crc
+ML_Models/DPR_FMM_WEIGHTED/part-00000-0e1e446d-63e2-4f92-8556-cca200da7aad-c000.csv

@@ -45,6 +45,14 @@ class ETLDTI():
         
         repositoryMySql = RepositoryMySql()
         repositoryMySql.addDTIs(DTIsToAdd)
+        
+    def syncFromFileToMySql(self):                
+        repositoryFile = RepositoryFile("Vuoto")
 
+        DTIsToAdd = repositoryFile.readDTIs()      
+        
+        repositoryMySql = RepositoryMySql()
+        repositoryMySql.addDTIs(DTIsToAdd)
+        
 etl = ETLDTI()
-etl.syncFromMongoToMySql()
+etl.syncFromFileToMySql()

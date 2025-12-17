@@ -22,7 +22,7 @@ class RepositoryMySql():
         connection = self._startConnetion()
         cursor = connection.cursor()
         for dti in DTIs:
-            sql = "INSERT INTO tesi.DTI (DrugId, ProteinId) VALUES(%s, %s);"
+            sql = "INSERT INTO DTI(DrugId, ProteinId) VALUES(%s, %s);"
             val = (dti._drugId, dti._proteinId)
             
             cursor.execute(sql, val)
@@ -34,7 +34,7 @@ class RepositoryMySql():
         connection = self._startConnetion()
         cursor = connection.cursor()
         for ppi in PPIs:
-            sql = "INSERT INTO tesi.PPI (ProteinAId, ProteinBId, Score) VALUES(%s, %s, %s);"
+            sql = "INSERT INTO PPI (ProteinAId, ProteinBId, Score) VALUES(%s, %s, %s);"
             val = (ppi._proteinAId, ppi._proteinBId, ppi._score)
             
             cursor.execute(sql, val)

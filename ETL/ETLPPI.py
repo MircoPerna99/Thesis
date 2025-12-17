@@ -69,6 +69,14 @@ class ETLPPI():
                 repositoryMySql = RepositoryMySql()
                 repositoryMySql.addPPIs(PPIsToAdd)
         
+        def syncFromFileToMySql(self):                
+                repositoryFile = RepositoryFile("Vuoto")
+
+                PPIsToAdd = repositoryFile.readPPIs()      
+                
+                repositoryMySql = RepositoryMySql()
+                repositoryMySql.addPPIs(PPIsToAdd)
+        
 
 etl = ETLPPI()
-etl.syncFromMongoToMySql()
+etl.syncFromFileToMySql()

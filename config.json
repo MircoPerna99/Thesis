@@ -8,10 +8,10 @@
         "alphas" : [10.0]
     },
     "hyperpameters_FM" : {
-        "regParams" : [0.01,0.1],
-        "maxIters" : [100,200,500],
+        "regParams" : [0.01],
+        "maxIters" : [500],
         "initStds" : [0.1],
-        "factorSizes" : [2,4,8]
+        "factorSizes" : [2]
     },
     "isInteractionsMatrix" : true,
     "nameFileAmountInteractions": "interactions_DP",
@@ -24,14 +24,14 @@
     "proteinsToAnalyse" : ["P07333", "P10721","P09769",
                             "P06239"              
                         ],
-    "PPIWeighted": true,
+    "PPIWeighted":true,
     "PPINotFiltered": false,
     "saveDataOnFile": false,
     "showGraph": false,
     "sqlHost":"127.0.0.1",
     "sqlUser":"root",
     "sqlPassword":"Mirco949!",
-    "sqlDatabase":"tesi",
+    "sqlDatabase":"Tesi_Elementi_Selezionati",
     "takeAllProtein" : true,
     "takeDataFromFile" : true,
     "toCompareTrainingTest":true,

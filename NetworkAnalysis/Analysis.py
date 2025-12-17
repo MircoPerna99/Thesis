@@ -10,8 +10,8 @@ query = """{
   "$and": [
     {
       "$or": [
-        { "proteinAId": "P04035" },
-        { "proteinBId": "P04035" }
+        { "proteinAId": "P49815" },
+        { "proteinBId": "P49815" }
       ]
     },
     { "score": { "$gte": 0.5 } }
@@ -22,77 +22,37 @@ query = """{
 repositoryMongo = RepositoryMongo()
 PPIs = repositoryMongo.readPPIs(query)
 
-query = """{ 
-  "$and": [
-    {
-      "$or": [
-        { "proteinAId": "P27487" },
-    	{ "proteinBId": "P27487" }
-      ]
-    },
-    { "score": { "$gte": 0.5 } }
-  ]
-}"""
+PPIsToAdd = []
+for ppi in PPIs:
+  query = f"""{{ 
+            "$and": [
+              {{
+                "$or": [
+                  {{ "proteinAId": "{ppi._proteinAId}" }},
+                  {{ "proteinBId": "{ppi._proteinAId}" }},
+                  {{ "proteinAId": "{ppi._proteinBId}" }},
+                  {{ "proteinBId": "{ppi._proteinBId}" }}
+                ]
+              }},
+              {{ "score": {{ "$gte": 0.5 }} }}
+            ]
+          }}"""
+  PPIsToAdd.extend(repositoryMongo.readPPIs(query))
 
-repositoryMongo = RepositoryMongo()
-PPIs.extend(repositoryMongo.readPPIs(query))
-
-
-query = """{ 
-  "$and": [
-    {
-      "$or": [
-        { "proteinAId": "P35869" },
-        { "proteinBId": "P35869" }
-      ]
-    },
-    { "score": { "$gte": 0.5 } }
-  ]
-}"""
-PPIs.extend(repositoryMongo.readPPIs(query))
-
-query = """{ 
-  "$and": [
-    {
-      "$or": [
-        { "proteinAId": "Q92769" },
-        { "proteinBId": "Q92769" }
-      ]
-    },
-    { "score": { "$gte": 0.5 } }
-  ]
-}"""
-PPIs.extend(repositoryMongo.readPPIs(query))
-
-
-query = """{ 
-  "$and": [
-    {
-      "$or": [
-        { "proteinAId": "Q14994" },
-        { "proteinBId": "Q14994" }
-      ]
-    },
-    { "score": { "$gte": 0.5 } }
-  ]
-}"""
-PPIs.extend(repositoryMongo.readPPIs(query))
+PPIs.extend(PPIsToAdd)
 
 DTIs = []
-if(True):
-  query = '{"drugId":"DB01076"}'
-  DTIs = repositoryMongo.readDTIs(query)
-else:
-  for ppi in PPIs: 
-        query = '{"proteinId": "'+ppi._proteinAId+'"}'
-        DTIsToAdd = repositoryMongo.readDTIs(query)
-        if(DTIsToAdd != None or len(DTIsToAdd) != 0):
-            DTIs.extend(DTIsToAdd)
-            
-        query = '{ "proteinId": "'+ppi._proteinBId+'"}'
-        DTIsToAdd = repositoryMongo.readDTIs(query)
-        if(DTIsToAdd != None or len(DTIsToAdd) != 0):
-            DTIs.extend(DTIsToAdd)
+
+for ppi in PPIs:
+      query = '{"proteinId": "'+ppi._proteinAId+'"}'
+      DTIsToAdd = repositoryMongo.readDTIs(query)
+      if(DTIsToAdd != None or len(DTIsToAdd) != 0):
+          DTIs.extend(DTIsToAdd)
+          
+      query = '{ "proteinId": "'+ppi._proteinBId+'"}'
+      DTIsToAdd = repositoryMongo.readDTIs(query)
+      if(DTIsToAdd != None or len(DTIsToAdd) != 0):
+          DTIs.extend(DTIsToAdd)
 
 repositoryMongo.close_connection()
 
